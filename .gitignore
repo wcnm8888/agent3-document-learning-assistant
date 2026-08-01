@@ -12,7 +12,12 @@ venv/
 # Local databases and vector storage
 *.db
 *.sqlite
+*.sqlite3
+*.sqlite3-*
 qdrant_storage/
+data/qdrant/
+data/docqa.sqlite3
+data/docqa.sqlite3-*
 neo4j_data/
 
 # Runtime outputs
@@ -20,6 +25,7 @@ outputs/
 reports/
 logs/
 *.log
+backups/
 
 # Local tooling
 .pytest_cache/
@@ -27,4 +33,3 @@ logs/
 .ruff_cache/
 .coverage
 htmlcov/
-

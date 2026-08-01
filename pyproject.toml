@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent3-document-qa"
+version = "0.1.0"
+description = "Phase 2 document ingestion and Qdrant indexing pipeline"
+requires-python = ">=3.10"
+dependencies = [
+  "hello-agents==0.2.0",
+  "openai>=1,<2",
+  "httpx>=0.27,<1",
+  "gradio>=5,<6",
+  "socksio>=1,<2",
+  "qdrant-client>=1.12,<2",
+  "pypdf>=5,<6",
+  "python-dotenv>=1,<2",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.setuptools.packages.find]
+where = ["src"]

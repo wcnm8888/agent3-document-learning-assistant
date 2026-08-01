@@ -1,0 +1,12 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - docqa_qdrant_data:/qdrant/storage
+    # qdrant/qdrant 镜像不内置 curl/wget；真实 HTTP healthz 由 doc_qa.cli health 检查。
+
+volumes:
+  docqa_qdrant_data:
