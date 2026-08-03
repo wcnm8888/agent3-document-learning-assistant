@@ -1,0 +1,2481 @@
+/* UI-REC1: single CSS authority for the Agent3 knowledge workspace. */
+
+:root {
+  --docqa-bg: #09090b;
+  --docqa-panel: #18181b;
+  --docqa-panel-soft: #202023;
+  --docqa-panel-raised: #27272a;
+  --docqa-border: #303036;
+  --docqa-border-strong: #3f3f46;
+  --docqa-text: #fafafa;
+  --docqa-text-muted: #a1a1aa;
+  --docqa-text-faint: #71717a;
+  --docqa-accent: #2f80ed;
+  --docqa-accent-hover: #2472dc;
+  --docqa-success: #22c55e;
+  --docqa-warning: #f59e0b;
+  --docqa-danger: #ef4444;
+  --docqa-radius-panel: 12px;
+  --docqa-radius-control: 8px;
+  --docqa-shadow-panel: none;
+  --docqa-topbar-height: 76px;
+  --docqa-sidebar-width: 216px;
+  --docqa-inspector-width: 368px;
+  --docqa-gap: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+.gradio-container {
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+  color: var(--docqa-text) !important;
+  background: var(--docqa-bg) !important;
+  font-family: Inter, "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif !important;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+footer,
+.footer {
+  display: none !important;
+}
+
+main.app,
+.gradio-container {
+  width: 100%;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+#docqa-shell {
+  --body-background-fill: var(--docqa-bg);
+  --background-fill-primary: var(--docqa-panel);
+  --background-fill-secondary: var(--docqa-panel-soft);
+  --block-background-fill: transparent;
+  --block-label-background-fill: transparent;
+  --input-background-fill: var(--docqa-panel-soft);
+  --body-text-color: var(--docqa-text);
+  --block-label-text-color: var(--docqa-text-muted);
+  width: min(100%, 1440px);
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0 24px 18px;
+  gap: 0 !important;
+  color: var(--docqa-text);
+}
+
+#docqa-shell * {
+  text-shadow: none;
+}
+
+#docqa-shell .block,
+#docqa-shell .form,
+#docqa-shell .wrap,
+#docqa-shell .container {
+  min-width: 0;
+}
+
+#docqa-shell .block.docqa-title,
+#docqa-shell .block.docqa-kicker,
+#docqa-shell .block.docqa-eyebrow,
+#docqa-shell .block.docqa-hero-title,
+#docqa-shell .block.docqa-hero-copy,
+#docqa-shell .block.docqa-status,
+#docqa-shell .block.docqa-recent-title,
+#docqa-shell .block.docqa-section-kicker,
+#docqa-shell .block.docqa-inspector-section-title,
+#docqa-shell .block.docqa-sidebar-footer,
+#docqa-shell .block.docqa-source-summary,
+#docqa-shell .block.docqa-inspector-note-preview,
+#docqa-shell .block.docqa-inspector-scope {
+  overflow: visible !important;
+}
+
+#docqa-shell .docqa-library-view > .styler,
+#docqa-shell .docqa-session-view > .styler,
+#docqa-shell .docqa-session-scope > .styler,
+#docqa-shell .docqa-composer > .styler,
+#docqa-shell .docqa-inspector > .styler,
+#docqa-shell .docqa-session-chip-row > .form,
+#docqa-shell .docqa-composer-main > .form,
+#docqa-shell .docqa-session-filter .form,
+#docqa-shell .docqa-composer-input .form,
+#docqa-shell .docqa-note-content .form {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-session-filter.block,
+#docqa-shell .docqa-composer-input.block,
+#docqa-shell .docqa-note-content.block {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell button,
+#docqa-shell input,
+#docqa-shell textarea,
+#docqa-shell select {
+  font: inherit;
+}
+
+#docqa-shell button {
+  min-height: 40px;
+  border: 1px solid var(--docqa-border-strong) !important;
+  border-radius: var(--docqa-radius-control) !important;
+  color: var(--docqa-text) !important;
+  background: var(--docqa-panel-soft) !important;
+  box-shadow: none !important;
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+
+#docqa-shell button:hover {
+  border-color: #52525b !important;
+  background: #29292e !important;
+}
+
+#docqa-shell button.primary,
+#docqa-shell .primary > button,
+#docqa-shell button[variant="primary"] {
+  border-color: var(--docqa-accent) !important;
+  background: var(--docqa-accent) !important;
+}
+
+#docqa-shell button.primary:hover,
+#docqa-shell .primary > button:hover {
+  border-color: var(--docqa-accent-hover) !important;
+  background: var(--docqa-accent-hover) !important;
+}
+
+#docqa-shell button.stop,
+#docqa-shell .stop > button {
+  border-color: rgba(239, 68, 68, 0.72) !important;
+  color: #fecaca !important;
+  background: rgba(127, 29, 29, 0.28) !important;
+}
+
+#docqa-shell button:focus-visible,
+#docqa-shell input:focus-visible,
+#docqa-shell textarea:focus-visible,
+#docqa-shell [role="combobox"]:focus-visible,
+#docqa-shell [role="tab"]:focus-visible {
+  outline: 2px solid var(--docqa-accent) !important;
+  outline-offset: 2px;
+}
+
+#docqa-shell button:disabled,
+#docqa-shell input:disabled,
+#docqa-shell textarea:disabled,
+#docqa-shell [aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+#docqa-shell input,
+#docqa-shell textarea,
+#docqa-shell [role="combobox"] {
+  border-color: var(--docqa-border-strong) !important;
+  color: var(--docqa-text) !important;
+  background: var(--docqa-panel-soft) !important;
+  box-shadow: none !important;
+}
+
+#docqa-shell input::placeholder,
+#docqa-shell textarea::placeholder {
+  color: var(--docqa-text-faint) !important;
+  opacity: 1;
+}
+
+/* App shell */
+
+#docqa-shell .docqa-topbar {
+  display: flex;
+  min-height: var(--docqa-topbar-height);
+  margin: 0;
+  padding: 0 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--docqa-border);
+  flex-wrap: nowrap !important;
+}
+
+#docqa-shell .docqa-brand {
+  display: flex !important;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap !important;
+}
+
+#docqa-shell .docqa-brand-mark {
+  display: grid;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  margin: 0;
+  place-items: center;
+  border-radius: 9px;
+  color: #fff;
+  background: var(--docqa-accent);
+  flex: 0 0 34px;
+}
+
+#docqa-shell .block.docqa-brand-mark > .prose.docqa-brand-mark {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+#docqa-shell .docqa-brand-mark p,
+#docqa-shell .docqa-title p,
+#docqa-shell .docqa-kicker p,
+#docqa-shell .docqa-topbar-chip p {
+  margin: 0;
+}
+
+#docqa-shell .docqa-brand-copy {
+  min-width: 0;
+  gap: 1px;
+  flex: 0 1 auto !important;
+}
+
+#docqa-shell .docqa-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+#docqa-shell .docqa-title p {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+#docqa-shell .docqa-title p,
+#docqa-shell .docqa-hero-title p {
+  color: var(--docqa-text);
+}
+
+#docqa-shell .docqa-kicker {
+  margin: 0;
+  color: var(--docqa-text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+#docqa-shell .docqa-kicker p {
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+
+#docqa-shell .docqa-kicker p,
+#docqa-shell .docqa-eyebrow p,
+#docqa-shell .docqa-hero-copy p,
+#docqa-shell .docqa-session-meta p {
+  color: inherit;
+}
+
+#docqa-shell .docqa-topbar-meta {
+  display: flex !important;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap !important;
+}
+
+#docqa-shell .block.docqa-topbar-chip {
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 12px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+#docqa-shell .block.docqa-topbar-chip .prose.docqa-topbar-chip {
+  width: auto;
+  min-width: 88px;
+  margin: 0;
+  padding: 7px 14px;
+  border: 1px solid var(--docqa-border);
+  border-radius: 999px;
+  color: var(--docqa-text-muted);
+  background: var(--docqa-panel);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+#docqa-shell .block.docqa-topbar-runtime .prose.docqa-topbar-runtime {
+  border-color: rgba(34, 197, 94, 0.48);
+  color: #86efac;
+  background: rgba(20, 83, 45, 0.24);
+}
+
+#docqa-shell .block.docqa-topbar-language .prose.docqa-topbar-language {
+  display: grid;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0;
+  place-items: center;
+  color: var(--docqa-text);
+}
+
+#docqa-shell .docqa-mobile-actions {
+  display: none !important;
+}
+
+#docqa-shell .docqa-mobile-actions > .form {
+  display: flex;
+  min-width: 0;
+  padding: 0;
+  justify-content: flex-end;
+  gap: 8px;
+  border: 0;
+  background: transparent !important;
+  flex: 0 0 auto;
+}
+
+#docqa-shell .docqa-mobile-actions .block {
+  width: auto;
+  min-width: 0;
+  min-height: 40px;
+  max-height: 40px;
+  padding: 7px 10px;
+  border: 1px solid var(--docqa-border);
+  border-radius: 8px;
+  background: var(--docqa-panel);
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+#docqa-shell .docqa-mobile-actions label {
+  color: var(--docqa-text);
+  font-size: 12px;
+}
+
+#docqa-workspace {
+  display: grid !important;
+  grid-template-columns: var(--docqa-sidebar-width) minmax(0, 1fr) var(--docqa-inspector-width);
+  grid-template-areas: "sidebar main inspector";
+  width: 100%;
+  height: calc(100dvh - var(--docqa-topbar-height) - 34px);
+  min-height: 620px;
+  max-height: 820px;
+  margin-top: 16px;
+  gap: var(--docqa-gap);
+  align-items: stretch;
+  flex-flow: initial;
+  flex-wrap: initial;
+}
+
+#docqa-workspace > * {
+  min-width: 0;
+  min-height: 0;
+}
+
+#docqa-shell .docqa-sidebar,
+#docqa-shell .docqa-main-region,
+#docqa-shell .docqa-inspector {
+  border: 1px solid var(--docqa-border);
+  border-radius: var(--docqa-radius-panel);
+  background: var(--docqa-panel);
+  box-shadow: var(--docqa-shadow-panel);
+}
+
+#docqa-shell .docqa-sidebar {
+  grid-area: sidebar;
+  display: flex !important;
+  height: 100%;
+  padding: 14px;
+  flex-direction: column;
+  flex-wrap: nowrap !important;
+  gap: 10px;
+  overflow: hidden;
+}
+
+#docqa-shell .docqa-main-region {
+  grid-area: main;
+  display: flex !important;
+  height: 100%;
+  padding: 0;
+  flex-flow: column nowrap !important;
+  overflow: hidden;
+}
+
+#docqa-shell .docqa-inspector {
+  grid-area: inspector;
+  display: flex !important;
+  height: 100%;
+  padding: 0;
+  flex-flow: column nowrap !important;
+  gap: 0 !important;
+  overflow: hidden;
+}
+
+/* Sidebar */
+
+#docqa-shell .docqa-section-kicker,
+#docqa-shell .docqa-recent-title {
+  margin: 0;
+  padding: 5px 8px;
+  border-radius: 0;
+  color: var(--docqa-text-faint);
+  background: transparent;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+#docqa-shell .docqa-section-kicker p,
+#docqa-shell .docqa-recent-title p {
+  margin: 0;
+}
+
+#docqa-shell .docqa-space-nav {
+  gap: 4px;
+  max-height: 172px;
+  flex: 0 0 auto;
+}
+
+#docqa-shell .docqa-nav-item {
+  margin: 0;
+}
+
+#docqa-shell button.docqa-nav-item,
+#docqa-shell .docqa-nav-item button {
+  min-height: 40px;
+  padding: 0 12px;
+  justify-content: flex-start;
+  border-color: transparent !important;
+  border-radius: 8px !important;
+  color: var(--docqa-text-muted) !important;
+  background: transparent !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+#docqa-shell button.docqa-nav-item::before,
+#docqa-shell .docqa-nav-item button::before {
+  display: inline-grid;
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  margin-right: 9px;
+  place-items: center;
+  border-radius: 7px;
+  color: var(--docqa-text-muted);
+  background: var(--docqa-panel-raised);
+  font-size: 12px;
+  line-height: 1;
+}
+
+#docqa-shell button.docqa-nav-library::before {
+  content: "▦";
+}
+
+#docqa-shell button.docqa-nav-session::before {
+  content: "◌";
+}
+
+#docqa-shell button.docqa-nav-context::before {
+  content: "⌁";
+}
+
+#docqa-shell button.docqa-nav-reports::before {
+  content: "▥";
+}
+
+#docqa-shell button.docqa-nav-item:hover,
+#docqa-shell .docqa-nav-item button:hover {
+  color: var(--docqa-text) !important;
+  background: var(--docqa-panel-soft) !important;
+}
+
+#docqa-shell button.docqa-nav-item.primary,
+#docqa-shell .docqa-nav-item.primary button,
+#docqa-shell .docqa-nav-item button.primary {
+  border-color: rgba(47, 128, 237, 0.46) !important;
+  color: var(--docqa-text) !important;
+  background: #29292e !important;
+  box-shadow: none !important;
+}
+
+#docqa-shell .docqa-nav-note {
+  margin: 0;
+  padding: 2px 8px 8px;
+  color: var(--docqa-text-faint);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+#docqa-shell .docqa-nav-note p {
+  margin: 0;
+}
+
+#docqa-shell .block.docqa-recent-title {
+  margin-top: 12px;
+  padding: 12px 8px 5px;
+  border-top: 1px solid var(--docqa-border);
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+#docqa-shell .block.docqa-recent-title .prose.docqa-recent-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+#docqa-shell .docqa-recent-block {
+  min-height: 0;
+  max-height: 196px;
+  overflow: auto;
+}
+
+#docqa-shell .docqa-recent-list {
+  display: grid;
+  gap: 2px;
+}
+
+#docqa-shell .docqa-recent-item {
+  display: grid;
+  min-width: 0;
+  padding: 8px;
+  gap: 3px;
+  border-radius: 7px;
+  background: transparent;
+}
+
+#docqa-shell .docqa-recent-item:first-child {
+  background: var(--docqa-panel-soft);
+}
+
+#docqa-shell .docqa-recent-name {
+  overflow: hidden;
+  color: var(--docqa-text);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#docqa-shell .docqa-recent-meta,
+#docqa-shell .docqa-recent-empty {
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-sidebar-footer {
+  margin: auto 0 0;
+  padding: 10px 8px 2px;
+  border-top: 1px solid var(--docqa-border);
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+#docqa-shell .docqa-sidebar-footer p {
+  margin: 0;
+}
+
+/* Shared view typography */
+
+#docqa-shell .docqa-eyebrow,
+#docqa-shell .docqa-hero-title,
+#docqa-shell .docqa-hero-copy,
+#docqa-shell .docqa-session-meta,
+#docqa-shell .docqa-status,
+#docqa-shell .docqa-chip {
+  margin: 0;
+}
+
+#docqa-shell .docqa-eyebrow p,
+#docqa-shell .docqa-hero-title p,
+#docqa-shell .docqa-hero-copy p,
+#docqa-shell .docqa-session-meta p,
+#docqa-shell .docqa-status p,
+#docqa-shell .docqa-chip p {
+  margin: 0;
+}
+
+#docqa-shell .docqa-eyebrow {
+  color: var(--docqa-text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+#docqa-shell .docqa-hero-title {
+  color: var(--docqa-text);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+#docqa-shell .docqa-hero-copy,
+#docqa-shell .docqa-session-meta {
+  color: var(--docqa-text-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+#docqa-shell .docqa-status,
+#docqa-shell .docqa-chip {
+  width: auto;
+  min-width: 0;
+  padding: 6px 11px;
+  border: 1px solid var(--docqa-border-strong);
+  border-radius: 999px;
+  color: var(--docqa-text-muted);
+  background: var(--docqa-panel-soft);
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+#docqa-shell .block.docqa-status > .prose.docqa-status,
+#docqa-shell .block.docqa-chip > .prose.docqa-chip {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* Library */
+
+#docqa-shell .docqa-library-view,
+#docqa-shell .docqa-session-view {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+}
+
+#docqa-shell .docqa-library-view {
+  display: flex !important;
+  padding: 26px 28px 18px;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+#docqa-shell .docqa-library-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 176px;
+  gap: 24px;
+  align-items: center;
+  flex-flow: initial !important;
+}
+
+#docqa-shell .docqa-library-header > * {
+  min-width: 0;
+}
+
+#docqa-shell .docqa-library-header-actions {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+#docqa-shell .docqa-upload-trigger {
+  margin: 0;
+  min-height: 42px;
+  max-height: 42px;
+  overflow: hidden;
+}
+
+#docqa-shell .docqa-upload-trigger,
+#docqa-shell .docqa-upload-trigger .upload-container {
+  min-height: 42px;
+  max-height: 42px;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 8px;
+  color: #fff;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-upload-trigger > label {
+  display: none !important;
+}
+
+#docqa-shell .docqa-upload-trigger > button {
+  width: 100%;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0 !important;
+  border-radius: 8px;
+  color: #fff !important;
+  background: var(--docqa-accent) !important;
+  box-shadow: none;
+}
+
+#docqa-shell .docqa-upload-trigger > button .wrap {
+  display: flex;
+  width: auto;
+  height: 42px;
+  min-height: 0;
+  max-height: 42px;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row !important;
+  gap: 7px;
+  color: inherit !important;
+  background: transparent !important;
+  font-size: 0;
+}
+
+#docqa-shell .docqa-upload-trigger > button .wrap::after {
+  content: "上传文档";
+  font-size: 12px;
+}
+
+#docqa-shell .docqa-upload-trigger > button .icon-wrap {
+  width: 17px;
+  height: 17px;
+}
+
+#docqa-shell button.docqa-library-index,
+#docqa-shell .docqa-library-index button {
+  min-height: 32px;
+  border-color: var(--docqa-border-strong) !important;
+  color: var(--docqa-text-muted);
+  background: var(--docqa-panel-soft);
+  font-size: 11px;
+}
+
+#docqa-shell .docqa-library-status {
+  width: 100%;
+  min-height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--docqa-text-faint);
+  background: transparent;
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#docqa-shell .docqa-library-toolbar {
+  margin-top: 20px;
+  padding: 0;
+  gap: 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+#docqa-shell .docqa-library-toolbar > .form,
+#docqa-shell .docqa-library-filter-bar > .form {
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-library-filter-bar > .form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+#docqa-shell .docqa-library-search,
+#docqa-shell .docqa-library-search-field {
+  margin: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-library-search textarea,
+#docqa-shell .docqa-library-search input {
+  min-height: 42px;
+  padding: 0 14px;
+  border-color: var(--docqa-border-strong) !important;
+  border-radius: 8px;
+  background: var(--docqa-panel-soft);
+}
+
+#docqa-shell .docqa-library-filter-bar {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  flex-flow: initial !important;
+}
+
+#docqa-shell .docqa-library-filter-control {
+  min-width: 112px;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-library-filter-control input {
+  min-height: 32px;
+  padding-inline: 12px 28px;
+  border: 1px solid var(--docqa-border-strong);
+  border-radius: 999px;
+  color: var(--docqa-text-muted);
+  background: var(--docqa-panel-soft) !important;
+  font-size: 11px !important;
+}
+
+#docqa-shell .docqa-library-count {
+  width: auto;
+  margin: 0;
+  color: var(--docqa-text-faint);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+#docqa-shell .docqa-library-count p {
+  margin: 0;
+}
+
+#docqa-shell .docqa-library-list-heading {
+  display: flex !important;
+  margin: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#docqa-shell .docqa-library-list-panel {
+  min-height: 0;
+  margin-top: 14px;
+  padding: 14px 14px 12px;
+  gap: 10px;
+  border: 1px solid var(--docqa-border);
+  border-radius: 10px;
+  background: var(--docqa-panel-soft);
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+#docqa-shell .docqa-library-list-title,
+#docqa-shell .docqa-library-list-copy {
+  margin: 0;
+  padding: 0;
+}
+
+#docqa-shell .docqa-library-list-title p {
+  margin: 0;
+  color: var(--docqa-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#docqa-shell .docqa-library-list-copy p {
+  margin: 2px 0 0;
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-document-library {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#docqa-shell .docqa-document-list {
+  display: grid;
+  gap: 6px;
+}
+
+#docqa-shell .docqa-document-list-columns,
+#docqa-shell .docqa-document-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 86px 96px 128px;
+  align-items: center;
+  gap: 12px;
+}
+
+#docqa-shell .docqa-document-list-columns {
+  padding: 3px 12px 7px;
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-document-row {
+  min-height: 66px;
+  padding: 10px 12px;
+  border: 1px solid var(--docqa-border);
+  border-radius: 8px;
+  background: var(--docqa-panel);
+  cursor: pointer;
+  outline: none;
+}
+
+#docqa-shell .docqa-document-row:hover {
+  border-color: #52525b;
+  background: var(--docqa-panel-soft);
+}
+
+#docqa-shell .docqa-document-row.is-selected,
+#docqa-shell .docqa-document-row:focus-visible {
+  border-color: var(--docqa-accent);
+  box-shadow: 0 0 0 1px rgba(47, 128, 237, 0.18);
+}
+
+#docqa-shell .docqa-document-main {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+#docqa-shell .docqa-document-name {
+  overflow: hidden;
+  color: var(--docqa-text);
+  font-size: 13px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#docqa-shell .docqa-document-meta,
+#docqa-shell .docqa-document-format,
+#docqa-shell .docqa-document-time,
+#docqa-shell .docqa-document-error {
+  overflow: hidden;
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#docqa-shell .docqa-document-status,
+#docqa-shell .docqa-status-pill {
+  justify-self: start;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: var(--docqa-text-muted);
+  background: var(--docqa-panel-raised);
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-status-indexed .docqa-document-status {
+  color: #86efac;
+  background: rgba(20, 83, 45, 0.38);
+}
+
+#docqa-shell .docqa-status-failed .docqa-document-status,
+#docqa-shell .docqa-document-error {
+  color: #fca5a5;
+}
+
+#docqa-shell .docqa-library-empty {
+  display: grid;
+  min-height: 220px;
+  place-content: center;
+  gap: 6px;
+  color: var(--docqa-text-muted);
+  text-align: center;
+}
+
+#docqa-shell .docqa-library-empty span {
+  color: var(--docqa-text-faint);
+  font-size: 12px;
+}
+
+#docqa-shell .docqa-document-table-compat,
+#docqa-shell .docqa-notes-table {
+  display: none !important;
+}
+
+/* Session */
+
+#docqa-shell .docqa-session-view {
+  padding: 32px 32px 16px;
+  overflow: hidden;
+  background: #09090b;
+}
+
+#docqa-shell .docqa-session-view > .styler {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
+
+#docqa-shell .docqa-session-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: 24px;
+  align-items: center;
+  flex-flow: initial !important;
+}
+
+#docqa-shell .docqa-session-intro {
+  min-width: 0;
+  gap: 3px;
+}
+
+#docqa-shell .docqa-session-intro .docqa-eyebrow {
+  color: var(--docqa-text-faint);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+#docqa-shell .docqa-session-intro .docqa-eyebrow p {
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-session-intro .docqa-hero-title {
+  color: var(--docqa-text);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+#docqa-shell .docqa-session-intro .docqa-hero-title p {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+#docqa-shell .docqa-session-intro .docqa-hero-copy {
+  color: var(--docqa-text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+#docqa-shell .docqa-session-intro .docqa-hero-copy p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#docqa-shell .docqa-session-chip-row {
+  display: flex !important;
+  margin-top: 10px;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap !important;
+}
+
+#docqa-shell .docqa-session-chip-row > .form {
+  width: 132px;
+  min-width: 132px !important;
+  max-width: 132px;
+  flex: 0 0 132px;
+}
+
+#docqa-shell .docqa-session-chip-row > .docqa-status {
+  flex: 0 0 auto !important;
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+#docqa-shell .docqa-session-filter-chip {
+  position: relative;
+  width: 132px;
+  min-width: 132px !important;
+  max-width: 132px;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  flex: 0 0 132px;
+}
+
+#docqa-shell .docqa-session-filter-chip > .form,
+#docqa-shell .docqa-session-filter-chip > .wrap,
+#docqa-shell .docqa-session-filter-chip .container,
+#docqa-shell .docqa-session-filter-chip .wrap,
+#docqa-shell .docqa-session-filter-chip .wrap-inner,
+#docqa-shell .docqa-session-filter-chip .secondary-wrap {
+  min-height: 0;
+  height: 36px;
+  max-height: 36px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: transparent;
+}
+
+#docqa-shell .docqa-session-filter-chip .wrap-inner {
+  height: 34px;
+  max-height: 34px;
+}
+
+#docqa-shell .docqa-session-filter-chip .secondary-wrap {
+  width: 100%;
+  height: 32px;
+  max-height: 32px;
+  margin: 0;
+}
+
+#docqa-shell .docqa-session-filter-chip::before {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 12px;
+  content: "范围 ·";
+  color: var(--docqa-text-muted);
+  font-size: 11px;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+#docqa-shell .docqa-session-filter-chip [role="combobox"],
+#docqa-shell .docqa-session-filter-chip input {
+  min-height: 30px !important;
+  height: 30px;
+  max-height: 30px;
+  padding-left: 49px;
+  border-radius: 999px;
+  font-size: 11px;
+}
+
+#docqa-shell .docqa-session-chip-row > .docqa-status .prose.docqa-status {
+  min-height: 30px;
+  padding: 6px 12px;
+  border: 1px solid rgba(34, 197, 94, 0.48);
+  border-radius: 999px;
+  color: #86efac;
+  background: rgba(20, 83, 45, 0.24);
+  font-size: 11px;
+}
+
+#docqa-shell .docqa-session-chip-row > .docqa-status .prose.docqa-status p::before {
+  content: none;
+}
+
+#docqa-shell button.docqa-header-action,
+#docqa-shell .docqa-header-action button {
+  min-height: 42px;
+  border-color: var(--docqa-accent) !important;
+  border-radius: 9px !important;
+  background: var(--docqa-accent) !important;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+#docqa-shell .docqa-session-workspace {
+  display: flex !important;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  margin-top: 18px;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 0;
+  overflow: hidden;
+}
+
+#docqa-shell .docqa-session-filter {
+  min-width: 0;
+  margin: 0;
+}
+
+#docqa-shell .docqa-timeline-panel {
+  display: flex !important;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+#docqa-shell .docqa-timeline-heading {
+  display: none !important;
+}
+
+#docqa-shell .docqa-timeline-render {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+#docqa-shell .docqa-chatbot,
+#docqa-shell .docqa-answer-status {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#docqa-shell .docqa-answer-status {
+  overflow-wrap: anywhere;
+}
+
+#docqa-shell .docqa-timeline {
+  display: flex;
+  min-height: 100%;
+  padding: 0 0 12px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#docqa-shell .docqa-timeline-empty {
+  display: flex;
+  min-height: 112px;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--docqa-text-muted);
+  text-align: center;
+}
+
+#docqa-shell .docqa-timeline-empty span {
+  color: var(--docqa-text-faint);
+  font-size: 11px;
+}
+
+#docqa-shell .docqa-timeline-separator {
+  align-self: stretch;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--docqa-text-faint);
+  background: #18181b;
+  font-size: 10px;
+  text-align: center;
+}
+
+#docqa-shell .docqa-timeline-message {
+  display: grid;
+  max-width: 100%;
+  padding: 12px 14px;
+  gap: 7px;
+  border-radius: 14px;
+  box-shadow: none;
+  color: var(--docqa-text);
+  background: var(--docqa-panel-raised);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+#docqa-shell .docqa-timeline-user {
+  align-self: flex-end;
+  min-width: 52%;
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--docqa-accent);
+}
+
+#docqa-shell .docqa-timeline-assistant {
+  align-self: flex-start;
+  width: 100%;
+  border-radius: 14px;
+}
+
+#docqa-shell .docqa-timeline-role,
+#docqa-shell .docqa-timeline-meta,
+#docqa-shell .docqa-timeline-state {
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-timeline-user .docqa-timeline-role {
+  display: none;
+}
+
+#docqa-shell .docqa-timeline-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+#docqa-shell .docqa-timeline-meta span {
+  padding: 4px 10px;
+  border: 1px solid var(--docqa-border-strong);
+  border-radius: 999px;
+  color: var(--docqa-text-muted);
+  background: #202023;
+}
+
+#docqa-shell .docqa-timeline-meta span:last-child {
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #86efac;
+  background: rgba(20, 83, 45, 0.2);
+}
+
+#docqa-shell .docqa-timeline-state {
+  margin-top: auto;
+  padding-top: 2px;
+  color: var(--docqa-text-faint);
+  font-size: 11px;
+}
+
+#docqa-shell .docqa-answer-tools {
+  display: flex;
+  min-height: 24px;
+  margin-top: 1px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: var(--docqa-text-faint);
+}
+
+#docqa-shell .docqa-copy-answer {
+  position: relative;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: var(--docqa-text-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+#docqa-shell .docqa-copy-answer:hover,
+#docqa-shell .docqa-copy-answer:focus-visible {
+  color: var(--docqa-text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+#docqa-shell .docqa-copy-answer:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.72);
+  outline-offset: 1px;
+}
+
+#docqa-shell .docqa-copy-answer span::before,
+#docqa-shell .docqa-copy-answer span::after {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 1.25px solid currentColor;
+  border-radius: 2px;
+  content: "";
+}
+
+#docqa-shell .docqa-copy-answer span::before {
+  top: 7px;
+  left: 7px;
+}
+
+#docqa-shell .docqa-copy-answer span::after {
+  top: 5px;
+  left: 9px;
+}
+
+#docqa-shell .docqa-copy-answer[data-state="copied"]::after,
+#docqa-shell .docqa-copy-answer[data-state="failed"]::after {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 5px);
+  color: var(--docqa-text-muted);
+  font-size: 10px;
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+
+#docqa-shell .docqa-copy-answer[data-state="copied"]::after {
+  content: "已复制";
+}
+
+#docqa-shell .docqa-copy-answer[data-state="failed"]::after {
+  content: "复制失败";
+}
+
+#docqa-shell .docqa-answer-time {
+  min-width: 30px;
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+#docqa-shell .docqa-timeline-content {
+  overflow-wrap: anywhere;
+}
+
+#docqa-shell .docqa-composer {
+  display: grid !important;
+  min-width: 0;
+  min-height: 90px;
+  padding: 10px 12px 7px;
+  gap: 4px;
+  border: 1px solid var(--docqa-border-strong);
+  border-radius: 12px;
+  background: #050506;
+  flex: 0 0 auto !important;
+}
+
+#docqa-shell .docqa-composer-main {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 8px;
+}
+
+#docqa-shell .docqa-composer-input {
+  margin: 0;
+}
+
+#docqa-shell .docqa-composer-input textarea {
+  min-height: 48px !important;
+  max-height: 80px;
+  padding: 13px 12px;
+  border: 0 !important;
+  background: transparent !important;
+  resize: none;
+  scrollbar-width: none;
+}
+
+#docqa-shell .docqa-composer-input textarea::-webkit-scrollbar {
+  display: none;
+}
+
+#docqa-shell .docqa-composer-footer {
+  min-height: 18px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-flow: row nowrap;
+}
+
+#docqa-shell .docqa-composer-hint {
+  min-width: 0;
+  color: var(--docqa-text-faint);
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#docqa-shell button.docqa-composer-send,
+#docqa-shell .docqa-composer-send button {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 50% !important;
+}
+
+#docqa-shell button.docqa-composer-clear,
+#docqa-shell .docqa-composer-clear button {
+  width: auto;
+  min-width: 36px;
+  min-height: 18px;
+  padding: 0 4px;
+  border-color: transparent !important;
+  color: var(--docqa-text-faint) !important;
+  background: transparent !important;
+  font-size: 9px;
+}
+
+/* Context inspector */
+
+#docqa-shell .docqa-inspector-header {
+  flex: 0 0 auto !important;
+  padding: 28px 32px 14px;
+  border-bottom: 0;
+}
+
+#docqa-shell .docqa-inspector-header .docqa-hero-title {
+  font-size: 22px;
+}
+
+#docqa-shell .docqa-inspector-header .docqa-hero-title p {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+#docqa-shell .docqa-inspector-eyebrow p {
+  font-size: 10px;
+  color: var(--docqa-text-faint);
+}
+
+#docqa-shell .docqa-inspector-header .docqa-hero-copy {
+  margin-top: 5px;
+}
+
+#docqa-shell .docqa-context-view,
+#docqa-shell .docqa-document-inspector {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: auto;
+  flex: 1 1 auto !important;
+  overflow: auto;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-document-inspector > .styler,
+#docqa-shell .docqa-context-view > .styler,
+#docqa-shell .docqa-document-inspector .form,
+#docqa-shell .docqa-context-view .form,
+#docqa-shell .docqa-document-inspector-markup,
+#docqa-shell .docqa-detail-selector-controlled {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-detail-selector-controlled {
+  padding: 0 !important;
+}
+
+#docqa-shell .docqa-inspector-body {
+  min-width: 0;
+  min-height: 0;
+  padding: 0 32px 24px;
+}
+
+#docqa-shell .docqa-context-tabs {
+  min-width: 0;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-context-tabs .tab-container[role="tablist"] {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  box-sizing: border-box;
+  height: 34px;
+  min-height: 34px;
+  max-height: 34px;
+  padding: 2px;
+  gap: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #0d0d0f;
+  box-shadow: inset 0 0 0 1px var(--docqa-border);
+  overflow: hidden;
+}
+
+#docqa-shell .docqa-context-tabs .tab-container[role="tablist"] button {
+  box-sizing: border-box;
+  height: 30px;
+  min-height: 30px;
+  max-height: 30px;
+  margin: 0;
+  padding-block: 0;
+  border: 0 !important;
+  border-radius: 6px !important;
+  color: var(--docqa-text-muted) !important;
+  background: transparent !important;
+  box-shadow: none;
+  font-size: 12px;
+}
+
+#docqa-shell .docqa-context-tabs .tab-container[role="tablist"] button.selected {
+  color: var(--docqa-text) !important;
+  background: var(--docqa-panel-raised) !important;
+  box-shadow: none;
+}
+
+#docqa-shell .docqa-context-tabs .tab-container[role="tablist"] button::before,
+#docqa-shell .docqa-context-tabs .tab-container[role="tablist"] button::after {
+  display: none;
+}
+
+#docqa-shell .docqa-context-tabs .tabitem {
+  padding: 12px 0 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+#docqa-shell .docqa-source-cards,
+#docqa-shell .docqa-note-cards {
+  display: grid;
+  gap: 10px;
+}
+
+#docqa-shell .docqa-source-summary {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#docqa-shell .docqa-source-summary .html-container,
+#docqa-shell .docqa-inspector-note-preview .html-container,
+#docqa-shell .docqa-inspector-scope .html-container {
+  padding: 0;
+}
+
+#docqa-shell .docqa-source-card,
+#docqa-shell .docqa-note-card,
+#docqa-shell .docqa-note-editor,
+#docqa-shell .docqa-document-inspector-card {
+  padding: 14px;
+  border: 1px solid var(--docqa-border);
+  border-radius: 12px;
+  background: var(--docqa-panel-soft);
+}
+
+#docqa-shell .docqa-source-card-head,
+#docqa-shell .docqa-note-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#docqa-shell .docqa-source-card-primary {
+  display: flex;
+  margin-top: 8px;
+  align-items: baseline;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+#docqa-shell .docqa-source-badge,
+#docqa-shell .docqa-detail-badge {
+  display: inline-flex;
+  width: fit-content;
+  min-width: 62px;
+  padding: 5px 9px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: #fff;
+  background: #7c3aed;
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-source-badge-markdown {
+  background: #0ea5e9;
+}
+
+#docqa-shell .docqa-source-card-name,
+#docqa-shell .docqa-note-card-content {
+  margin-top: 8px;
+  color: var(--docqa-text);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+#docqa-shell .docqa-source-card-primary .docqa-source-card-name {
+  margin-top: 0;
+}
+
+#docqa-shell .docqa-source-card-primary .docqa-source-location::before {
+  margin-right: 4px;
+  content: "·";
+}
+
+#docqa-shell .docqa-source-location,
+#docqa-shell .docqa-source-score,
+#docqa-shell .docqa-note-card-meta,
+#docqa-shell .docqa-source-excerpt,
+#docqa-shell .docqa-source-locator,
+#docqa-shell .docqa-inspector-location-note {
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+#docqa-shell .docqa-source-expand,
+#docqa-shell .docqa-raw-source {
+  margin-top: 8px;
+  color: var(--docqa-text-muted);
+  font-size: 11px;
+}
+
+#docqa-shell .docqa-raw-source {
+  display: none;
+}
+
+#docqa-shell .docqa-inspector-section-title {
+  margin: 28px 0 10px;
+  color: var(--docqa-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#docqa-shell .docqa-inspector-section-title p {
+  margin: 0;
+}
+
+#docqa-shell .docqa-inspector-note-preview .docqa-note-card {
+  padding: 14px;
+  border-color: transparent;
+  border-radius: 12px;
+  background: var(--docqa-panel-soft);
+}
+
+#docqa-shell .docqa-inspector-note-preview .docqa-note-card-head time,
+#docqa-shell .docqa-inspector-note-preview .docqa-note-card-meta {
+  display: none;
+}
+
+#docqa-shell .docqa-inspector-note-preview .docqa-note-card-content {
+  margin-top: 0;
+  font-size: 12px;
+}
+
+#docqa-shell .docqa-inspector-note-preview .docqa-note-empty {
+  min-height: 84px;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+#docqa-shell .docqa-inspector-scope {
+  margin-top: 28px;
+}
+
+#docqa-shell .docqa-inspector-scope-card {
+  display: grid;
+  gap: 4px;
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-inspector-scope-card strong {
+  color: var(--docqa-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#docqa-shell .docqa-source-empty,
+#docqa-shell .docqa-note-empty,
+#docqa-shell .docqa-inspector-empty {
+  display: grid;
+  min-height: 150px;
+  padding: 18px;
+  place-content: center;
+  gap: 5px;
+  border: 1px dashed var(--docqa-border-strong);
+  border-radius: 9px;
+  color: var(--docqa-text-muted);
+  text-align: center;
+}
+
+#docqa-shell .docqa-source-empty span,
+#docqa-shell .docqa-note-empty span,
+#docqa-shell .docqa-inspector-empty span {
+  color: var(--docqa-text-faint);
+  font-size: 11px;
+}
+
+#docqa-shell .docqa-notes-card,
+#docqa-shell .docqa-note-editor {
+  gap: 9px;
+}
+
+#docqa-shell .docqa-note-content textarea {
+  min-height: 96px !important;
+  resize: vertical;
+}
+
+#docqa-shell button.docqa-note-save,
+#docqa-shell button.docqa-note-update,
+#docqa-shell .docqa-note-save button,
+#docqa-shell .docqa-note-update button {
+  width: 100%;
+}
+
+#docqa-shell .docqa-note-status {
+  width: 100%;
+  border-radius: 7px;
+  white-space: normal;
+}
+
+#docqa-shell .docqa-detail-selector-controlled {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0 !important;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#docqa-shell .docqa-document-inspector-card {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+#docqa-shell .docqa-document-inspector-card h2 {
+  margin: 6px 0 10px;
+  overflow: hidden;
+  color: var(--docqa-text);
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#docqa-shell .docqa-inspector-badges {
+  display: flex;
+  margin-bottom: 16px;
+  align-items: center;
+  gap: 7px;
+}
+
+#docqa-shell .docqa-detail-status {
+  display: inline-flex;
+  min-height: 24px;
+  padding: 4px 10px;
+  align-items: center;
+  border-radius: 999px;
+  color: var(--docqa-text-muted);
+  background: var(--docqa-panel-raised);
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-detail-status-indexed {
+  color: #86efac;
+  background: rgba(20, 83, 45, 0.38);
+}
+
+#docqa-shell .docqa-inspector-metadata {
+  display: grid;
+  margin-top: 12px;
+  gap: 9px;
+}
+
+#docqa-shell .docqa-inspector-metadata dl,
+#docqa-shell .docqa-inspector-metadata div {
+  min-width: 0;
+}
+
+#docqa-shell .docqa-inspector-metadata dt {
+  color: var(--docqa-text-faint);
+  font-size: 10px;
+}
+
+#docqa-shell .docqa-inspector-metadata dd {
+  margin: 2px 0 0;
+  color: var(--docqa-text);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+#docqa-shell .docqa-detail-error {
+  margin-top: 8px;
+  padding: 9px 10px;
+  border: 1px solid rgba(239, 68, 68, 0.32);
+  border-radius: 7px;
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.12);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+#docqa-shell .docqa-mobile-nav-toggle,
+#docqa-shell .docqa-mobile-context-toggle {
+  min-width: 0;
+}
+
+#docqa-shell .docqa-sheet-handle,
+#docqa-shell .docqa-context-close,
+#docqa-shell .docqa-mobile-locator-note {
+  display: none;
+}
+
+#docqa-shell .docqa-inspector-heading-row {
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#docqa-shell .docqa-inspector-heading-copy {
+  min-width: 0;
+  gap: 2px;
+}
+
+#docqa-shell .docqa-danger-zone {
+  margin-top: 18px;
+  padding: 12px;
+  gap: 8px;
+  border: 1px solid var(--docqa-border);
+  border-radius: 9px;
+  background: var(--docqa-panel-soft);
+}
+
+#docqa-shell .docqa-danger-copy {
+  color: var(--docqa-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+#docqa-shell .docqa-actions-row {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  flex-flow: initial !important;
+}
+
+#docqa-shell .docqa-stats {
+  margin: 14px 0 0;
+  border: 1px solid var(--docqa-border) !important;
+  border-radius: var(--docqa-radius-panel) !important;
+  background: var(--docqa-panel) !important;
+}
+
+/* Tablet: preserve the main task and turn navigation into a drawer. */
+
+@media (max-width: 1100px) {
+  #docqa-shell {
+    --docqa-inspector-width: 300px;
+  }
+
+  #docqa-shell {
+    padding-inline: 16px;
+  }
+
+  #docqa-shell .docqa-mobile-actions {
+    display: flex !important;
+    min-height: 42px;
+    margin: 8px 0 0;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  #docqa-shell .docqa-mobile-actions > .form {
+    display: grid;
+    width: auto;
+    margin-left: auto;
+    grid-template-columns: auto auto;
+    justify-content: end;
+    gap: 8px;
+  }
+
+  #docqa-shell .docqa-mobile-actions .block {
+    position: relative;
+    width: auto;
+    min-width: 112px;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 999px;
+  }
+
+  #docqa-shell .docqa-mobile-actions input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  #docqa-shell .docqa-mobile-actions label {
+    display: flex;
+    height: 100%;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  #docqa-shell .docqa-mobile-context-toggle {
+    display: none;
+  }
+
+  #docqa-workspace {
+    grid-template-columns: minmax(0, 1fr) var(--docqa-inspector-width);
+    grid-template-areas: "main inspector";
+    height: calc(100dvh - 152px);
+    min-height: 0;
+    margin-top: 8px;
+  }
+
+  #docqa-shell .docqa-sidebar {
+    position: fixed;
+    z-index: 120;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(280px, 82vw);
+    height: 100dvh;
+    border-radius: 0 12px 12px 0;
+    transform: translateX(-105%);
+    transition: transform 160ms ease;
+  }
+
+  #docqa-shell:has(#docqa-mobile-nav-toggle input:checked) .docqa-sidebar {
+    transform: translateX(0);
+  }
+
+  #docqa-shell .docqa-library-header {
+    grid-template-columns: minmax(0, 1fr) 150px;
+  }
+
+  #docqa-shell .docqa-document-list-columns,
+  #docqa-shell .docqa-document-row {
+    grid-template-columns: minmax(0, 1fr) 72px 84px 108px;
+  }
+}
+
+/* Mobile: one task surface, navigation drawer, and context bottom sheet. */
+
+@media (max-width: 760px) {
+  #docqa-shell {
+    --docqa-topbar-height: 56px;
+  }
+
+  #docqa-shell {
+    width: 100%;
+    padding: 0 10px 10px;
+  }
+
+  #docqa-shell .docqa-topbar {
+    min-height: var(--docqa-topbar-height);
+    padding: 0 4px;
+  }
+
+  #docqa-shell .docqa-brand-mark {
+    display: none;
+  }
+
+  #docqa-shell .docqa-brand {
+    padding-left: 48px;
+  }
+
+  #docqa-shell .docqa-title {
+    font-size: 15px;
+  }
+
+  #docqa-shell .docqa-kicker,
+  #docqa-shell .docqa-topbar-runtime,
+  #docqa-shell .docqa-topbar-language {
+    display: none;
+  }
+
+  #docqa-shell .docqa-topbar-chip {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+
+  #docqa-shell .docqa-mobile-actions {
+    position: absolute;
+    z-index: 160;
+    top: 0;
+    left: 0;
+    display: block !important;
+    width: 0;
+    height: 0;
+    min-height: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  #docqa-shell .docqa-mobile-actions > .form {
+    display: contents;
+  }
+
+  #docqa-shell .docqa-mobile-actions .block {
+    box-sizing: border-box;
+    width: 44px !important;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    padding: 0 !important;
+    pointer-events: auto;
+  }
+
+  #docqa-shell .docqa-mobile-actions .docqa-mobile-nav-toggle {
+    position: fixed;
+    z-index: 160;
+    top: 6px;
+    left: 10px;
+    min-width: 44px !important;
+    border-color: transparent !important;
+    border-radius: 50%;
+    background: var(--docqa-panel-raised) !important;
+  }
+
+  #docqa-shell .docqa-mobile-actions .docqa-mobile-context-toggle {
+    position: fixed;
+    z-index: 125;
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    display: block;
+    width: auto !important;
+    min-width: 104px !important;
+    padding-inline: 14px !important;
+    border-color: rgba(37, 99, 235, 0.7) !important;
+    border-radius: 999px;
+    background: var(--docqa-accent) !important;
+  }
+
+  #docqa-shell .docqa-mobile-actions input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  #docqa-shell .docqa-mobile-actions label {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  #docqa-shell .docqa-mobile-nav-toggle label {
+    font-size: 0;
+  }
+
+  #docqa-shell .docqa-mobile-nav-toggle label::before {
+    width: 16px;
+    height: 12px;
+    background: linear-gradient(
+      to bottom,
+      var(--docqa-text) 0 1.5px,
+      transparent 1.5px 5px,
+      var(--docqa-text) 5px 6.5px,
+      transparent 6.5px 10px,
+      var(--docqa-text) 10px 11.5px
+    );
+    content: "";
+  }
+
+  #docqa-shell .docqa-mobile-context-toggle label {
+    color: #fff !important;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  #docqa-shell:has(#docqa-mobile-context-toggle input:checked) .docqa-mobile-context-toggle {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #docqa-shell:has(#docqa-mobile-context-toggle input:checked):has(#document-inspector) .docqa-mobile-nav-toggle {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #docqa-workspace {
+    display: block !important;
+    height: calc(100dvh - 66px);
+    min-height: 520px;
+    max-height: none;
+    margin-top: 0;
+  }
+
+  #docqa-shell .docqa-main-region {
+    width: 100%;
+    height: 100%;
+  }
+
+  #docqa-shell .docqa-library-view,
+  #docqa-shell .docqa-session-view {
+    padding: 14px;
+  }
+
+  #docqa-shell .docqa-library-header,
+  #docqa-shell .docqa-session-header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  #docqa-shell .docqa-library-header-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  #docqa-shell .docqa-library-status {
+    grid-column: 1 / -1;
+  }
+
+  #docqa-shell .docqa-library-filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  #docqa-shell .docqa-library-filter-bar > .form {
+    grid-template-columns: 1fr;
+  }
+
+  #docqa-shell .docqa-library-list-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #docqa-shell .docqa-document-list-columns {
+    display: none;
+  }
+
+  #docqa-shell .docqa-document-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 66px;
+    gap: 7px 10px;
+  }
+
+  #docqa-shell .docqa-document-main {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  #docqa-shell .docqa-document-format,
+  #docqa-shell .docqa-document-time {
+    display: none;
+  }
+
+  #docqa-shell .docqa-document-status {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  #docqa-shell .docqa-session-workspace {
+    height: auto;
+    margin-top: 10px;
+    flex: 1 1 auto;
+  }
+
+  #docqa-shell .docqa-composer-hint {
+    display: none;
+  }
+
+  #docqa-shell .docqa-timeline-message {
+    max-width: 94%;
+  }
+
+  #docqa-shell .docqa-composer-input textarea {
+    min-height: 44px !important;
+  }
+
+  #docqa-shell .docqa-inspector {
+    position: fixed;
+    z-index: 130;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex !important;
+    width: 100%;
+    height: min(390px, calc(100dvh - 96px));
+    min-height: min(360px, calc(100dvh - 96px));
+    max-height: calc(100dvh - 96px);
+    padding-bottom: env(safe-area-inset-bottom);
+    border-radius: 20px 20px 0 0;
+    transform: translateY(105%);
+    transition: transform 180ms ease;
+    overflow: hidden;
+  }
+
+  #docqa-shell:has(#docqa-mobile-context-toggle input:checked) .docqa-inspector {
+    transform: translateY(0);
+  }
+
+  #docqa-shell .docqa-inspector:has(#document-inspector) {
+    height: calc(100dvh - 8px);
+    min-height: calc(100dvh - 8px);
+    max-height: calc(100dvh - 8px);
+    border-radius: 18px 18px 0 0;
+  }
+
+  #docqa-shell .block.docqa-sheet-handle {
+    position: absolute;
+    z-index: 2;
+    top: 10px;
+    left: 50%;
+    display: block;
+    width: 54px;
+    min-width: 54px;
+    height: 4px;
+    min-height: 4px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    transform: translateX(-50%);
+    overflow: visible;
+  }
+
+  #docqa-shell .docqa-sheet-handle .html-container {
+    padding: 0;
+  }
+
+  #docqa-shell .docqa-sheet-handle-mark {
+    display: block;
+    width: 54px;
+    height: 4px;
+    border-radius: 999px;
+    background: #74747d;
+  }
+
+  #docqa-shell .docqa-inspector-header {
+    padding: 28px 20px 12px;
+  }
+
+  #docqa-shell .docqa-inspector-heading-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    align-items: start;
+    gap: 10px;
+  }
+
+  #docqa-shell button.docqa-context-close,
+  #docqa-shell .docqa-context-close button {
+    display: inline-flex;
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--docqa-text-muted);
+    background: var(--docqa-panel-raised);
+    font-size: 0;
+  }
+
+  #docqa-shell button.docqa-context-close::before,
+  #docqa-shell .docqa-context-close button::before {
+    font-size: 20px;
+    line-height: 1;
+    content: "×";
+  }
+
+  #docqa-shell .docqa-inspector-header .docqa-hero-title p {
+    font-size: 22px;
+  }
+
+  #docqa-shell .docqa-inspector-copy {
+    display: none;
+  }
+
+  #docqa-shell .docqa-inspector-body {
+    height: 100%;
+    padding: 0 20px 16px;
+    overflow: hidden;
+  }
+
+  #docqa-shell .docqa-context-view,
+  #docqa-shell .docqa-context-view > .styler,
+  #docqa-shell .docqa-context-view > .styler > .form,
+  #docqa-shell .docqa-context-tabs {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #docqa-shell .docqa-context-tabs {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #docqa-shell .docqa-context-tabs .tab-container[role="tablist"] {
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  #docqa-shell .docqa-context-tabs .tab-container[role="tablist"] button {
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    border-radius: 8px !important;
+  }
+
+  #docqa-shell .docqa-context-tabs .tabitem {
+    min-height: 0;
+    padding: 14px 0 10px !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  #docqa-shell .docqa-source-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  #docqa-shell .docqa-source-score {
+    display: none;
+  }
+
+  #docqa-shell .docqa-source-card-primary {
+    margin-top: 7px;
+  }
+
+  #docqa-shell .docqa-source-card-name {
+    max-width: 100%;
+  }
+
+  #docqa-shell .docqa-mobile-locator-note {
+    display: block;
+    margin-top: 12px;
+    color: var(--docqa-text-faint);
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  #docqa-shell .docqa-context-view .docqa-inspector-section-title,
+  #docqa-shell .docqa-context-view .docqa-inspector-note-preview,
+  #docqa-shell .docqa-context-view .docqa-inspector-scope {
+    display: none;
+  }
+
+  #docqa-shell .docqa-document-inspector {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #docqa-shell .docqa-document-inspector .docqa-inspector-body {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+
+  #docqa-shell .docqa-note-content textarea {
+    min-height: 112px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #docqa-shell *,
+  #docqa-shell *::before,
+  #docqa-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

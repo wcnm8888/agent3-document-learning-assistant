@@ -6,6 +6,8 @@ from doc_qa.config import Settings
 from doc_qa.models import IndexReport
 from doc_qa.ui import (
     APP_CSS,
+    APP_CSS_PATH,
+    APP_JS,
     UIController,
     _format_document_inspector,
     _format_session_timeline,
@@ -26,7 +28,7 @@ def test_ui_initial_state_creates_session_and_empty_library(tmp_path: Path):
     controller = UIController(Settings(sqlite_path=tmp_path / "ui.sqlite3"))
     session_id, status, history, sources, documents, stats = controller.initialize()
     assert session_id.startswith("session_")
-    assert status == "✅ 会话已就绪"
+    assert status == "会话已就绪"
     assert session_id not in status
     assert history == []
     assert sources == {}
@@ -158,7 +160,7 @@ def test_ui_styles_cover_required_responsive_breakpoints_and_states():
     assert "@media (max-width: 1100px)" in APP_CSS
     assert "@media (max-width: 760px)" in APP_CSS
     assert "docqa-source-summary" in APP_CSS
-    assert "--docqa-bg: #000000" in APP_CSS
+    assert "--docqa-bg: #09090b" in APP_CSS
     assert "--docqa-accent: #2f80ed" in APP_CSS
     assert "docqa-document-table" in APP_CSS
     assert "loading" not in APP_CSS  # loading is provided by Gradio event state, not fake CSS text
@@ -194,7 +196,7 @@ def test_ui4_styles_cover_focus_disabled_and_semantic_status_rules():
     assert "button:disabled" in APP_CSS
     assert "input:disabled" in APP_CSS
     assert "[aria-disabled=\"true\"]" in APP_CSS
-    assert "opacity: .55" in APP_CSS
+    assert "opacity: 0.55" in APP_CSS
 
 
 def test_ui_r4_uses_approved_workspace_layers(tmp_path: Path):
@@ -411,9 +413,58 @@ def test_hf_r3_builds_controlled_library_toolbar_and_detail_selector(tmp_path: P
         "docqa-document-inspector-markup",
         "docqa-detail-selector-controlled",
     } <= class_names
-    assert "HF-R3 owns the document-library workbench" in APP_CSS
+    assert "UI-REC1: single CSS authority" in APP_CSS
     assert "docqa-document-list-columns" in APP_CSS
     assert "docqa-inspector-metadata" in APP_CSS
+    controller.close()
+
+
+def test_ui_rec3_renders_selectable_rows_and_selected_document_metadata(tmp_path: Path):
+    controller = UIController(Settings(sqlite_path=tmp_path / "ui-rec3-library.sqlite3"))
+    controller.store.upsert_document(
+        document_id="ui-rec3-pdf",
+        document_name="REC3 产品手册.pdf",
+        source_path="fixture/rec3.pdf",
+        pages_with_text=18,
+        chunk_count=32,
+        indexed_point_count=32,
+        status="indexed",
+        content_hash="ui-rec3-pdf-hash",
+        source_locator_scheme="pdf-page-v1",
+    )
+    controller.store.upsert_document(
+        document_id="ui-rec3-markdown",
+        document_name="REC3 学习指南.md",
+        source_path="fixture/rec3.md",
+        source_unit_count=6,
+        chunk_count=9,
+        indexed_point_count=9,
+        status="archived",
+        format="markdown",
+        content_hash="ui-rec3-markdown-hash",
+        source_locator_scheme="markdown-heading-line-v1",
+    )
+
+    markup = controller.document_library_markup(selected_document_id="ui-rec3-markdown")
+    assert 'data-document-id="ui-rec3-pdf"' in markup
+    assert 'data-document-id="ui-rec3-markdown"' in markup
+    assert 'role="button"' in markup
+    assert 'tabindex="0"' in markup
+    assert 'class="docqa-document-row docqa-status-archived is-selected"' in markup
+    assert 'aria-pressed="true"' in markup
+    assert APP_JS.count("__docqaSelectedDocumentId") >= 1
+
+    inspector = controller.document_inspector_markup("ui-rec3-markdown")
+    assert "REC3 学习指南.md" in inspector
+    assert "ui-rec3-markdown" in inspector
+    assert "ui-rec3-markdown-hash" in inspector
+    assert "MARKDOWN" in inspector
+    assert "markdown-heading-line-v1" in inspector
+    assert ".block.docqa-recent-title" in APP_CSS
+    assert "margin-top: 12px" in APP_CSS
+    assert ".block.docqa-recent-title .prose.docqa-recent-title" in APP_CSS
+    assert ".docqa-upload-trigger > button .wrap" in APP_CSS
+    assert "height: 42px" in APP_CSS
     controller.close()
 
 
@@ -435,7 +486,11 @@ def test_hf_r2_renders_real_history_as_timeline_without_fabricating_sources():
     markup = _format_session_timeline(
         [
             {"role": "user", "content": "What does <scope> mean?"},
-            {"role": "assistant", "content": "It keeps the answer bounded."},
+            {
+                "role": "assistant",
+                "content": "It keeps the answer bounded.",
+                "metadata": {"title": "2026-08-03T19:21:00"},
+            },
         ],
         "✅ 回答完成",
         [{"citation_id": "source-1"}, {"citation_id": "source-2"}],
@@ -446,6 +501,9 @@ def test_hf_r2_renders_real_history_as_timeline_without_fabricating_sources():
     assert "&lt;scope&gt;" in markup
     assert "2 个来源" in markup
     assert "可保存为笔记" in markup
+    assert "docqa-copy-answer" in markup
+    assert "19:21" in markup
+    assert "✅" not in markup
 
     empty_markup = _format_session_timeline([], "等待提问", {})
     assert "docqa-timeline-empty" in empty_markup
@@ -469,17 +527,47 @@ def test_hf_r2_builds_controlled_timeline_and_compact_composer_contract(tmp_path
     controller.close()
 
 
+def test_ui_rec2_keeps_scope_in_header_and_composer_as_one_surface(tmp_path: Path):
+    controller = UIController(Settings(sqlite_path=tmp_path / "ui-rec2-layout.sqlite3"))
+    demo = build_app(controller)
+    blocks = demo.blocks.values() if isinstance(demo.blocks, dict) else demo.blocks
+    class_names = {
+        class_name
+        for block in blocks
+        for class_name in (getattr(block, "elem_classes", None) or [])
+    }
+
+    assert {
+        "docqa-session-filter-chip",
+        "docqa-composer-main",
+        "docqa-composer-footer",
+        "docqa-inspector-note-preview",
+        "docqa-inspector-scope",
+        "docqa-nav-library",
+        "docqa-nav-session",
+        "docqa-nav-context",
+        "docqa-nav-reports",
+    } <= class_names
+    assert "docqa-session-scope" not in class_names
+    assert "今天 · 学习记录" in _format_session_timeline([], "等待提问", {})
+    assert "UI-REC2" not in APP_CSS
+    assert "--docqa-shadow-panel: none" in APP_CSS
+    assert "docqa-recent-item:first-child" in APP_CSS
+    assert "docqa-inspector-section-title" in APP_CSS
+    assert "来源与复习" in [getattr(block, "value", None) for block in blocks]
+    controller.close()
+
+
 def test_hf_r1_session_status_hides_internal_session_identifier(tmp_path: Path):
     controller = UIController(Settings(sqlite_path=tmp_path / "hf-r1.sqlite3"))
 
     session_id, status, *_ = controller.initialize()
 
     assert session_id.startswith("session_")
-    assert status == "✅ 会话已就绪"
+    assert status == "会话已就绪"
     assert session_id not in status
     assert "docqa-answer-status" in APP_CSS
     assert "docqa-composer" in APP_CSS
-    assert "回答" in APP_CSS
     controller.close()
 
 
@@ -526,12 +614,23 @@ def test_ui_hf4_builds_context_inspector_card_contract(tmp_path: Path):
         for class_name in (getattr(block, "elem_classes", None) or [])
     }
 
-    assert {"docqa-context-tabs", "docqa-note-editor", "docqa-notes-table", "docqa-note-list-markup"} <= class_names
+    assert {
+        "docqa-context-tabs",
+        "docqa-note-editor",
+        "docqa-notes-table",
+        "docqa-note-list-markup",
+        "docqa-sheet-handle",
+        "docqa-context-close",
+        "docqa-mobile-locator-note",
+    } <= class_names
     assert "docqa-source-card" in APP_CSS
     assert "docqa-source-empty" in APP_CSS
     assert "docqa-note-status" in APP_CSS
     assert "docqa-mobile-context-toggle" in APP_CSS
-    assert "width: min(380px, calc(100vw - 28px))" in APP_CSS
+    assert "height: min(390px, calc(100dvh - 96px))" in APP_CSS
+    assert ".docqa-inspector:has(#document-inspector)" in APP_CSS
+    assert "docqa-mobile-context-toggle input:checked" in APP_CSS
+    assert "transform: translateY(105%)" in APP_CSS
     controller.close()
 
 
@@ -569,7 +668,7 @@ def test_ui_hf5_exposes_mobile_navigation_and_context_sheet_contract(tmp_path: P
     }
 
     assert {"docqa-mobile-nav-toggle", "docqa-mobile-context-toggle", "sources-panel"} <= element_ids
-    assert "UI-HF5" in APP_CSS
+    assert "UI-REC1: single CSS authority" in APP_CSS
     assert ":has(#docqa-mobile-nav-toggle input:checked)" in APP_CSS
     assert ":has(#docqa-mobile-context-toggle input:checked)" in APP_CSS
     assert "position: fixed" in APP_CSS
@@ -601,12 +700,16 @@ def test_ui_hf5_lifecycle_actions_use_selected_document_detail_scope(tmp_path: P
     controller.close()
 
 
-def test_hf_r1_owns_workbench_geometry_and_hides_internal_session_identifier():
-    assert "grid-template-columns: 216px minmax(0, 760px) 368px" in APP_CSS
+def test_ui_rec1_owns_workbench_geometry_and_css_loading_contract():
+    assert APP_CSS_PATH.name == "ui.css"
+    assert APP_CSS_PATH.is_file()
+    assert APP_CSS == APP_CSS_PATH.read_text(encoding="utf-8")
+    assert "grid-template-columns: var(--docqa-sidebar-width) minmax(0, 1fr) var(--docqa-inspector-width)" in APP_CSS
     assert "grid-template-areas:" in APP_CSS
-    assert '"intro action"' in APP_CSS
-    assert "footer { display: none !important; }" in APP_CSS
-    assert "height: auto !important" in APP_CSS
-    assert "flex-flow: column nowrap !important" in APP_CSS
-    assert ".docqa-context-tabs .tab-container.visually-hidden" in APP_CSS
+    assert '"sidebar main inspector"' in APP_CSS
+    assert "footer," in APP_CSS
     assert ".docqa-composer" in APP_CSS
+    assert APP_CSS.count("@media") == 3
+    assert APP_CSS.count("!important") <= 162
+    assert "UI-HF5" not in APP_CSS
+    assert "HF-R3 owns" not in APP_CSS
