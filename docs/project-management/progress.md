@@ -1,17 +1,179 @@
 # 项目进度
 
+## UI-REC0 可回退基线与单一事实源（2026-08-03）
+
+- 状态：`baseline_frozen`；UI-REC0 已完成，当前 UI 已冻结，不再追加视觉实现。
+- 已完成：审计 4345 行 `ui.py`、多代 CSS 级联、视觉测试有效性、Git 工作区和 E 盘临时产物。
+- 已固定：三张 Figma 基线已复制到 `docs/assets/ui-visual-baseline/` 并记录 SHA-256。
+- 已建立：`tests/fixtures/ui_visual_baseline.py` 和产物清理决策清单。
+- 已验证：隔离夹具 HTTP 200；UI 定向 28 项、全量 93 项、`compileall`、`git diff --check` 和高置信敏感信息检查通过。
+- Git：本任务以一个仅本地提交建立恢复点；未推送、未创建 PR、未部署。
+- 视觉结论：当前真实页面仍未通过 Figma 高保真验收；历史功能测试结论不能替代视觉结论。
+
+---
+
+# 历史 UI 进度（非权威）
+
+## HF-R0 视觉基线重置进度（2026-08-03）
+
+## HF-R4 来源、笔记、平板与移动端高保真落地（2026-08-03）
+
+- 状态：`ready_for_hf_r5`；本阶段完成，未自动进入 HF-R5。
+- 来源：真实 `citations` 继续由既有问答回调输出；受控卡片按 PDF 页码和 Markdown 章节/段落/行号分流，片段与原始 `source_locator` 仅在用户展开后显示。
+- 笔记：真实 SQLite 当前会话笔记被渲染为卡片；保存、更新、空、前置条件和失败仍调用原有回调，隐藏的 Dataframe 保留原有输出契约。
+- 响应式：1024×768 检查器从下置区域改为显式右侧抽屉；390×844 为带拖拽提示的上下文底部面板，来源/笔记 Tab 可操作。
+- 证据：隔离夹具 `127.0.0.1:7865` 与三种 iframe 视口包装页；截图为 `output/ui-fidelity-recovery/hf-r4/session-1440x900.png`、`session-1024x768-drawer.png`、`mobile-390x844-context.png`。夹具使用临时 SQLite，未删除真实数据或 Qdrant points。
+- 质量：UI 定向 28 项、全量 `pytest` 93 项通过；`compileall` 与 `git diff --check` 通过。
+- 限制：移动端浏览器自动填充被隔离浏览器剪贴板限制阻断；不将移动端有来源回答作为独立浏览器结论。桌面隔离实例已真实触发问答回调、两类来源展开与笔记保存。
+
+## HF-R3 文档库与详情检查器高保真落地（历史记录）
+
+- 状态：`ready_for_hf_r4`；本阶段完成，未自动进入 HF-R4。
+- 交付：使用真实 SQLite 文档目录重绘上传/索引入口、搜索、格式/状态/排序工具栏和紧凑文档行；长文件名在列表截断，完整标识进入详情检查器。
+- 详情：右侧检查器默认选择最近真实文档；选择 Markdown 后显示 `markdown-heading-line-v1`，选择 PDF 后显示 `pdf-page-v1`。失败文档仍展示元数据及脱敏错误，而非伪装成详情加载失败。
+- 隔离浏览器：1440×900、1024×768、390×844 均无页面级横向溢出；移动端工具栏单列、文档行不显示不可读的多列表格。截图位于 `output/ui-fidelity-recovery/hf-r3/`。
+- 质量：UI 定向 27 项通过；全量 `pytest` 92 项通过；`compileall` 与 `git diff --check` 通过。
+
+# HF-R1 统一应用外壳与 P0 结构修复（2026-08-03）
+
+- 状态：`ready_for_hf_r2`；本阶段已完成，HF-R2 尚未执行。
+- 外壳：桌面端采用 216px 导航 / 760px 主工作区 / 368px 检查器的唯一网格；1024×768 改为导航 + 主区两列，检查器下移；390×844 继续通过既有菜单入口收缩。
+- P0 修复：导航说明移出导航栅格；会话状态不再显示内部 `session_id`；文档库标题元数据与搜索输入的 Gradio 原生滚动条已消除；隐藏 Gradio 默认页脚。
+- 浏览器：隔离 SQLite/Qdrant 临时实例 `127.0.0.1:7862` 下，1440×900、1024×768、390×844 均无页面级横向溢出；工作区导航可切换。截图见 `output/ui-fidelity-recovery/hf-r1/`。
+- 质量门禁：UI 定向 23 项、全量 88 项通过；`compileall` 与 `git diff --check` 通过。
+- 未完成：学习会话消息与 Composer 的高保真重构、文档库紧凑列表、来源/笔记卡和移动底部面板属于 HF-R2～HF-R5，尚未执行。
+
+- 状态：`needs_fidelity_rework`。
+- 已完成：使用 Figma Review v1 与当前 `127.0.0.1:7860` 的 1440×900、1024×768、390×844 页面进行独立审计；保存 HF-R0 截图；建立视觉契约、P0 清单、HF-R0～HF-R5 阶段地图和独立任务卡。
+- 审计结论：当前 UI-HF6 的功能回归记录不能证明视觉高保真。实测存在导航说明重叠、会话 ID 横向滚动、时间线留白、原生组件干扰和文档库主视图未切换等阻塞项。
+- 未执行：HF-R1～HF-R5、代码/CSS/测试修改、数据库/Qdrant 操作、Git 提交/推送/PR/部署。
+- 下一步：等待负责人确认进入 HF-R1，并批准“受控展示层 + 真实 Gradio 回调”的实现策略。
+
+## 历史 UI-HF6 收口更新（不作为当前视觉结论）
+
+- 状态：`ready_for_release_review`。
+- 已完成 P0：修复会话头部与问答范围卡的结构重叠风险；修复移动端上下文检查器在有来源卡片时因 flex-wrap 导致内容移出视口的问题。
+- 已完成独立浏览器 QA：1440×900、1024×768、390×844；覆盖会话空状态、真实文档库、移动菜单、移动上下文底部面板、PDF/Markdown 来源卡片、来源/笔记 Tab 和笔记保存失败状态。
+- 质量门禁：UI 定向 22 项通过；全量 87 项通过；`compileall` 和 `git diff --check` 通过。
+- 未独立复现：依赖真实外部 Embedding 的笔记保存成功；本轮没有为了测试配置密钥或伪造成功状态。
+- 仍未处理：Gradio `upload_progress?upload_id=undefined` 404；它是独立非阻塞技术债务。
+- 未执行：UI-HF7、UI-R6/UI-R7、Git 提交/推送/PR/部署。
+
+- 状态：实现已完成，验收未完全收口；当前为 `ready_for_review`。UI-HF6 不得进入。
+- 已完成：1024×768 平板端采用紧凑三栏布局；390×844 移动端提供“菜单”和“上下文”入口，导航以抽屉形式打开，上下文检查器以底部面板形式打开。
+- 已完成：移动端来源/笔记 Tab 可操作且选中态有文字与语义状态；问答范围、会话切换、文档搜索/筛选和详情入口保持现有回调。
+- 浏览器证据：1440×900、1024×768、390×844 的页面内容宽度均未超过可视内容宽度；390×844 已实测菜单打开、切换学习会话、上下文底部面板打开、来源/笔记 Tab 切换。
+- 证据截图：`output/playwright/ui-hf5-final-1440.png`、`ui-hf5-final-1024.png`、`ui-hf5-final-390-base.png`、`ui-hf5-390-context-final.png`。
+- 质量门禁：UI 定向测试 21 项通过；当前工作区全量 pytest 86 项通过；79 项是上一阶段历史基线，本轮新增 UI-HF5 状态契约和生命周期绑定测试；`compileall` 和 `git diff --check` 通过。测试门禁通过不等于浏览器状态矩阵已全部收口。
+- 安全边界：使用临时 SQLite/Qdrant 和临时 Gradio 实例；未修改核心业务、数据库 Schema、真实数据或真实 Qdrant points。
+- 未完成：上传中/校验中/解析中/索引中、问答生成中/成功/失败、外部服务不可用、数据库错误、索引失败、删除失败、笔记保存失败等状态尚未逐项在本轮三种视口浏览器中重放；此前定向测试和夹具不能直接替代 UI-HF5 独立证据。
+- 风险：真实外部服务宕机、真实生产数据库故障、真实上传传输中断未在生产环境演练；Gradio `upload_progress?upload_id=undefined` 404 仍为独立非阻塞技术债务，本阶段未处理。
+
+# UI-HF4 实施进度（历史阶段记录，2026-08-02）
+
+- 状态：已完成；下一阶段为 UI-HF5，尚未执行。
+- 已完成：上下文检查器统一深色表面、来源/笔记 Tab、PDF 页码来源卡片、Markdown 章节/段落/行号来源卡片。
+- 已完成：笔记编辑区、笔记内容标签、保存状态、保存前置条件警告和笔记列表视觉挂钩；原有保存/更新回调保持不变。
+- 浏览器证据：临时 UI 夹具真实显示 PDF 第 6–7 页、Markdown Core chapter · 段落 2 · 行 11-14；来源/笔记 Tab 可切换；未完成问答时保存笔记显示明确警告。
+- 响应式证据：1440×900、1024×768、390×844 的 `body.scrollWidth` 分别为 1425、1009、375，无横向溢出；控制台 error/warn 为 0。
+- 质量门禁：UI 定向测试 19 项通过；全量 pytest 79 项通过；`compileall`、`git diff --check` 通过。
+- 安全边界：使用临时 SQLite/Qdrant 浏览器实例；未修改核心业务、数据库 Schema、真实数据或真实 Qdrant points。
+- 风险：Gradio `upload_progress?upload_id=undefined` 404 仍是独立非阻塞技术债务；本阶段未处理。UI-HF5 响应式抽屉、移动端底部面板和完整状态矩阵尚未执行。
+
+# UI-HF2 实施进度（历史阶段记录，2026-08-02）
+
+# UI-HF1 实施进度（历史阶段记录，2026-08-02）
+
+# 项目进度
+
+## UI-HF0 高保真差距审计与实现基线（历史阶段记录，2026-08-02）
+
+- 当时状态为 `ready_for_ui_hf1`；UI-R0～UI-R5 原阶段功能性实现完成，随后已完成 UI-HF1 外壳与导航落地。
+- 对照 Figma 目标截图 `output/figma-ui-r2/` 与当前 UI-R5 截图 `output/playwright/`，确认主要差距位于应用外壳、左侧空间导航、文档库主工作区、学习会话消息时间线、底部 Composer、右侧上下文检查器、来源/笔记卡片和移动端面板。
+- 新增基线文档：`docs/ui-high-fidelity-baseline.md`。
+- 新增高保真阶段：UI-HF0～UI-HF6；UI-HF0 与 UI-HF1 已完成，当前等待 UI-HF2。
+- 已冻结业务保护规则：不改变 PDF/Markdown 解析、RAG、Embedding、Qdrant、SQLite、document_id、source_locator、会话、笔记和生命周期语义。
+- 本阶段只完成审计、映射和验收基线，未修改 Python、CSS、测试、配置、数据库、Qdrant 或真实数据。
+
+## UI-R5 最终复核补充（2026-08-02）
+
+- UI-R5 维持 `ready_for_review`；UI-R6、UI-R7 尚未执行。
+- UI 定向测试 13 项、全量测试 76 项通过；`compileall` 和 `git diff --check` 通过。
+- 临时实例 `http://127.0.0.1:7864/` 在 1440×900、1024×768、390×844 下无横向溢出，浏览器 error/warn 为 0。
+- 复核了文档库/学习会话导航、搜索列表过滤、来源/笔记 Tab、详情与生命周期入口、最近文档动态刷新绑定和移动端上下文面板布局。
+
+## UI-R4 历史实现记录（已完成，2026-08-02）
+
+- 根据负责人实际体验反馈，确认上一轮 UI 的主要不足是应用外壳、主次层级和组件形态没有真正重设计，而不仅是颜色或 CSS 问题。
+- 已创建独立任务卡：`docs/project-management/ui-redesign-task-card.md`。
+- 已完成 Figma 模板主页面、顶部导航、左侧资源导航和底部 Composer 的只读规格提取。
+- 已确认采用 Figma 模板的实际结构规格作为参考：1440×900 外壳、76px 顶部导航、200～220px 左侧资源区、680px 中央主任务区、68px 底部输入区、消息气泡和上下文层级。
+- 已形成参考规格：`docs/ui-redesign-reference-spec.md`。
+- 已在 `longchenust's team` 创建 Figma 文件：`https://www.figma.com/design/TjKze3Fwc19gCADBrgtuzJ`；当前为空白设计稿，不能视为设计完成。
+- 已完成 UI-R2 Figma 设计稿：桌面端学习会话、桌面端文档库、移动端学习会话和移动端来源/笔记底部面板打开态。
+- 设计稿截图保存于 `output/figma-ui-r2/desktop-session.png`、`desktop-library.png`、`mobile-session.png`、`mobile-context-sheet.png`。
+- 负责人已接受 Figma 设计方向，并确认 UI-R3 冻结决策：已索引文档默认进入学习会话；空知识库引导文档库；桌面端详情使用右侧面板；平板/移动端详情使用抽屉；来源和笔记共用上下文 Tab；移动端来源/笔记使用底部面板；删除确认使用确认弹窗或全屏抽屉。
+- 新任务当前状态已在上方 UI-R5 补充记录为 `ready_for_review`；本节仅保留 UI-R4 历史实现证据。
+- 已修改 `src/doc_qa/ui.py` 的 UI 表现层和 `tests/test_phase5_ui.py` 的 UI 契约断言；未修改解析、RAG、数据库、Qdrant 或真实数据。
+- 已完成三视口浏览器检查：1440×900、1024×768、390×844；安全临时实例的控制台 error/warn 均为 0，1024 和 390 均无横向溢出。
+- 已验证文档库导航、上传/索引入口、搜索/筛选、文档详情/生命周期入口、来源/笔记 Tab、问答范围选择和范围切换清理行为。
+
+## UI-R4 历史验证记录
+
+- UI 定向测试 `tests/test_phase5_ui.py`：11 项通过；全量 `pytest tests -q`：76 项通过。
+- `compileall -q src` 和 `git diff --check` 通过。
+- 截图保存于 `output/playwright/ui-r4-1440.png`、`ui-r4-1024.png`、`ui-r4-390.png`。
+- 预览验证使用临时 SQLite/Qdrant 和临时 PDF/Markdown 文档，不删除真实文档、不删除真实 Qdrant points。
+- UI-R4 之后的 UI-R5 已完成；UI-R6/UI-R7 尚未执行；Gradio `upload_progress?upload_id=undefined` 404 仍为独立非阻塞技术债务。
+
+## 历史 UI 美化任务：UI-4/UI-5 独立验收（已完成，2026-08-02）
+
+- UI-0 现状审计已完成：确认现有文档库、问答、来源/笔记三栏结构、混合主题对比度问题、长文档表格可读性问题和窄屏层级问题。
+- UI-1 Figma 参考提取已完成：提取深色工作台、左侧资源区、中心问答区、输入区、Zinc 表面和蓝色主交互原则；明确不复制模板源码、品牌和无关业务页面。
+- UI-2 已形成 Design System、页面信息架构、桌面/平板/移动端规格、组件树、状态清单、Gradio 映射和 UI-3 前置门禁。
+- 设计方向已固化为“深色知识工作台 + Zinc 表面 + 蓝色主交互”；橙色只用于警告/注意状态。
+- 设计任务卡：`docs/project-management/ui-beautification-task-card.md`；详细规格：`docs/design-spec.md`。
+- UI-3 已按确认的 Design Tokens 完成深色知识工作台外壳、文档库上传/索引/搜索/筛选/排序/详情/生命周期入口和问答范围选择的视觉重组。
+- 窄屏文档表格收缩为文档名、格式、状态、更新时间；完整 `document_id`、hash、定位方案和错误详情继续保留在详情区域。
+- UI-3 保持现有业务服务边界：未修改解析、分块、Embedding、Qdrant、SQLite Schema、会话、笔记、引用或生命周期语义。
+- UI 定向测试 15 项通过，`compileall` 通过；真实浏览器已检查 1440×900、1024×768、390×844，三种视口均未出现横向溢出。
+- UI-3 实现和证据已完成；UI-4 的三视口、可访问性、交互、输入校验和异常状态验收已完成；UI-5 独立视觉 QA、全量回归和文档收口已完成。
+
+## UI-4 独立验收记录（2026-08-02）
+
+- 仅对 UI 表现层做了必要修复：补充下拉/组合框焦点可见样式，以及按钮、输入控件和 `aria-disabled` 状态的禁用表现；未修改业务语义。
+- 新增 UI-4 定向测试 2 项，`tests/test_phase5_ui.py` 共 11 项通过；全量测试当前 76 项通过。临时浏览器环境已覆盖上传边界失败、格式拒绝、解析失败、索引失败、外部服务不可用、数据库错误、问答失败、删除失败、笔记保存失败、危险确认和加载中间态。
+- `compileall -q src tests` 和 `git diff --check` 通过。Gradio 兼容性弃用警告仍记录为技术债务。
+- 浏览器日志无项目级 error/warn；三种视口的 DOM 宽度与面板布局检查通过，截图保存于 `output/playwright/ui4-1440x900.png`、`output/playwright/ui4-1024x768.png` 和 `output/playwright/ui4-390x844.png`；异常状态截图保存于 `output/playwright/ui4-input-validation.png` 和 `output/playwright/ui4-failure-states.png`，其余新增状态以浏览器 DOM 快照和复现步骤记录。
+- 搜索只改变文档列表；范围切换清理回答、来源和待保存笔记的规则由定向测试验证。PDF/Markdown 来源定位差异和三种视口证据保持通过。真实生产上传中断、外部服务宕机和数据库故障演练未执行，作为安全边界记录，不影响受控 UI-4 验收结论。
+
+## UI-3 实施记录（2026-08-02）
+
+- 修改 `src/doc_qa/ui.py`：新增深色 Zinc Token、应用头部、三栏/两栏/窄屏布局、紧凑文档表格、详情信息、统一按钮/状态/输入样式和窄屏外层宽度适配。
+- 修改 `tests/test_phase5_ui.py`：增加紧凑文档表格与详情元数据保留测试，并校验 UI Token。
+- 浏览器证据保存于 `output/playwright/ui3-1440x900.png`、`ui3-1024x768.png`、`ui3-390x844.png`；搜索 `phase3` 的只读交互验证返回匹配文档。
+- 浏览器页面错误/警告日志为空；Gradio `upload_progress?upload_id=undefined` 404 未纳入本阶段，仍记录为已知非阻塞依赖风险。
+
 ## 当前状态
 
-> 当前权威状态（2026-08-01）：多文档与 Markdown 任务卡 Phase 2、Phase 3、Phase 4、Phase 5、Phase 6 已完成。真实浏览器问答、来源展开、笔记创建/更新、文档切换、三种视口复验和全量质量门禁均已通过；Gradio 上传进度 404 仍为非阻塞依赖风险。本节后方关于“等待进入 Phase 2”的内容属于历史基线记录。
+> 当前权威状态（2026-08-01）：多文档与 Markdown 任务卡 Phase 2～6 及后续方向 A、B、C 已完成，Git P0 已完成并提交为 `f3c5403`。真实浏览器问答、来源展开、笔记创建/更新、文档切换、三种视口复验和全量质量门禁均已通过；Gradio 上传进度 404 仍为非阻塞依赖风险。本节后方关于“等待进入 Phase 2”的内容属于历史基线记录。
 
 ## Phase 6 全量质量门禁与交付收口（已完成，2026-08-01）
 
-- 任务卡状态已统一为 Phase 0～6 完成；独立 QA 已勾选，Git 提交/PR/CI 仍等待负责人单独确认。
+- 任务卡状态已统一为 Phase 0～6 完成；独立 QA 已勾选；Git P0 已完成，提交为 `f3c5403`，未推送、未创建 PR、未部署。
 - 全量 `pytest tests -q`：67 项通过；`compileall`、`git diff --check`、敏感信息扫描通过。
 - `python -m doc_qa.cli health`：`status=ok`；Qdrant healthz HTTP 200；SQLite integrity check 为 `ok`。
 - v4 collection：`docqa_text-embedding-v4_dim1024`，267 points、1024 维；PDF 262 points、Markdown 5 points；必需来源元数据完整，未混入 v3 或测试向量。
 - v3 collection：`docqa_text-embedding-v3_dim1024_eval`，262 points、1024 维，保持独立且本轮未修改。
 - Gradio `upload_progress?upload_id=undefined` 404 仍为非阻塞依赖风险；上传、索引、问答和页面状态未受影响。
+
+## 后续方向与 Git P0 收口（已完成，2026-08-01）
+
+- 方向 A：完成 Gradio 5.50.0、5.49.1 和 6.22.0 隔离验证；保留 5.50.0，404 继续记录为非阻塞依赖风险。
+- 方向 B：完成文档生命周期服务、归档/删除/恢复/重新索引、一致性检查、历史关联保护和失败恢复；测试只使用临时 SQLite/Qdrant，未删除真实生产数据。
+- 方向 C：完成文档搜索、格式/状态筛选、更新时间排序、详情展示和索引错误脱敏；真实 UI 三种视口复验通过。
+- 方向 A/B/C 与 Git P0 收口阶段全量 pytest 为 73 项；当前 UI-4 回归全量 pytest 为 76 项通过，compileall 通过；Git P0 提交为 `f3c5403`。
+- 当前阶段已停止，不自动进入新的产品阶段；认证、多租户、公网部署和真实生产删除均未执行。
 
 ## Phase 5 独立 QA 收口（2026-08-01）
 
@@ -198,7 +360,7 @@ Phase 8 完成定义满足。当前仍不具备公网生产条件：应用无认
 - 方向 B 已实现 DocumentLifecycleService、Qdrant 按 document_id 删除、SQLite document_operations 审计记录、归档/恢复/删除/一致性检查和删除后笔记关联保护；UI 已接入归档、取消归档、删除确认和重新索引恢复入口。
 - 方向 B 新增 5 项临时 SQLite/Qdrant 测试，覆盖确认、归档保点、删除 tombstone、Qdrant 失败恢复和源文件缺失恢复。
 - 方向 C 已实现文档搜索、格式/状态筛选、更新时间排序、详情 JSON 和索引错误脱敏；新增 UI/查询回归测试。
-- 全量 pytest 73 项通过，compileall 通过；真实 UI 三种视口复验通过，未执行真实删除。
+- 方向 B/C 收口阶段全量 pytest 为 73 项；当前 UI-4 回归全量 pytest 为 76 项通过，compileall 通过；真实 UI 三种视口复验通过，未执行真实删除。
 
 ## 多文档与 Markdown 任务：Phase 4 UI 实现（已完成，2026-08-01）
 
@@ -229,3 +391,25 @@ Phase 4 完成定义满足。下一阶段是 Phase 5 独立 QA，不在本轮自
 - 真实 PDF 和 Markdown UI 问答均成功；PDF 来源为页码 locator，Markdown 来源为章节/段落/行号 locator，未生成伪答案或伪页码。
 - 真实浏览器完成来源展开、笔记创建与更新、文档范围切换和新会话隔离复验；切换和新会话均不会残留旧来源摘要。
 - Phase 5 已完成，不进入 Phase 6；DeepSeek 连通性已恢复并通过真实 UI 验证。
+## UI-5 独立视觉 QA 与收口（2026-08-02）
+
+- 状态：`completed`。
+- 完成 1440×900、1024×768、390×844 独立浏览器检查；三种视口 `scrollWidth - innerWidth = 0`，无横向溢出。
+- 完成文档搜索、格式/状态筛选、PDF 页码来源、Markdown 章节/段落/行号来源、会话切换、范围切换、笔记保存和删除确认保护验证。
+- 发现并修复 UI 表现层缺陷：Gradio Dataframe、Chatbot、JSON、上传区和笔记列表内部容器的默认白底；同时改善长文件名断行。未修改业务逻辑、数据库或 Qdrant。
+- UI 定向测试 17 项通过；全量测试 76 项通过；`compileall` 和 `git diff --check` 通过。
+- 证据：`output/playwright/ui5-1440x900.png`、`ui5-1024x768.png`、`ui5-390x844.png`、`ui5-pdf-source-top-1440.png`。
+- Gradio `upload_progress?upload_id=undefined` 404 仍记录为独立非阻塞风险；生产故障演练未执行。
+# UI-HF5 独立浏览器状态矩阵补充（2026-08-02）
+
+- 已验证：格式拒绝、空文件索引失败、PDF/Markdown 来源定位、笔记保存失败、删除危险确认、移动端菜单/上下文开关、来源/笔记 Tab 切换、最近文档真实数据展示和三种视口的页面级宽度检查。
+- 390×844 复验结果：`body.scrollWidth=375`；来源/笔记实际 Tab 坐标均落在上下文底部面板内；菜单抽屉可打开；PDF 显示“第 6–7 页”，Markdown 显示“Core chapter · 段落 2 · 行 11-14”。
+- 新增 UI 修复：生命周期操作使用 `document_detail_selector`，移动端 Tab 导航强制约束在上下文面板内。定向测试 21 项、全量测试 86 项通过。
+- 未完成：上传中断、解析失败、完整加载中间态、外部服务/数据库/问答失败、笔记保存成功、确认后的删除失败仍没有全部安全复现；因此状态保持 `ready_for_review`。
+- 上传操作仍可观察到 Gradio `upload_progress?upload_id=undefined` 404；这是独立非阻塞技术债务，本轮未处理。
+## 2026-08-03：HF-R2 学习会话高保真落地完成
+
+- 状态推进：`ready_for_hf_r2` → `ready_for_hf_r3`。
+- 主工作区已使用真实问答历史的受控时间线展示；消息、状态与来源数量来自现有回调，未新增静态业务数据。
+- 已收敛空状态高度并改造底部 Composer；1440×900、1024×768、390×844 通过隔离浏览器横向溢出检查。
+- UI 定向测试 25 项通过；全量测试 90 项通过。HF-R3～HF-R5 仍未完成，整体 Figma 高保真验收尚未通过。

@@ -22,12 +22,15 @@ neo4j_data/
 
 # Runtime outputs
 outputs/
+output/
 reports/
 logs/
 *.log
 backups/
 
 # Local tooling
+.playwright-cli/
+*.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
