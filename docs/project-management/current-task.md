@@ -1,17 +1,30 @@
-# 当前任务（唯一权威状态，2026-08-03）
+# 当前任务（唯一权威状态，2026-08-04）
 
-## UI-REC0：可回退基线与单一事实源
+## UI-REC4：移动端上下文高保真与最终视觉收口（已完成）
 
-- 状态：`baseline_frozen`。UI-REC0 已完成；当前 UI 已冻结，不得继续追加 CSS、创建新的视觉实现阶段或宣称 Figma 高保真通过。
-- 当前事实：功能回归记录有效，但真实页面尚未达到冻结 Figma 基线；测试通过与视觉通过必须分开记录。
-- 冻结视觉基线：`docs/assets/ui-visual-baseline/` 中的桌面学习会话、桌面文档库和移动上下文面板三张图片。
-- 固定数据夹具：`tests/fixtures/ui_visual_baseline.py`，仅使用临时 SQLite/Qdrant 路径和确定性外部服务替身，继续走真实 UI、会话、来源和笔记回调。
-- 清理状态：`docs/project-management/ui-rec0-cleanup-manifest.md` 已列出保留、归档和待确认清理范围；当前没有删除任何文件。
-- 质量门禁：隔离夹具 HTTP 200；UI 定向 28 项、全量 93 项通过；`compileall`、`git diff --check` 和高置信敏感信息检查通过。
-- Git 边界：本任务的本地提交即为恢复点；不推送、不创建 PR、不部署。
-- 下一决策：UI-REC0 完成并经负责人确认后，才决定是否进行 CSS/布局架构重置；没有自动批准新的 UI 实现阶段。
+- 状态：`completed`。UI-REC4 的实现、隔离浏览器验收和质量门禁已完成；负责人已于 2026-08-04 明确确认最终视觉验收通过。
+- 冻结基准：`figma-mobile-context-390x844.png`；桌面会话和文档库继续使用已批准的 1440×900 基准作为不可回归门禁。
+- 实现边界：仅修改 UI 表现层、必要状态绑定、UI 测试和项目文档；不修改解析、RAG、Embedding、Qdrant、SQLite Schema、会话、笔记或生命周期业务逻辑。
+- 完成状态：390×844 来源/笔记使用 390px 底部面板，PDF 保留第 6 页，Markdown 保留第 3 章/段落 2/行 11-14；文档详情使用 `390×836` 全屏面板；1024×768 导航抽屉可操作；三种视口均无页面级溢出。
+- 质量门禁：UI 定向 30 项、全量 95 项、`compileall`、`git diff --check` 通过；浏览器 console error/warn 为 0；CSS 为 2481 行、162 个 `!important`、3 个 `@media`。
+- 证据：`output/playwright/ui-rec4-mobile-session-390x844.png`、`ui-rec4-mobile-context-sources-390x844.png`、`ui-rec4-mobile-context-notes-390x844.png`、`ui-rec4-mobile-document-detail-390x844.png`、`ui-rec4-regression-tablet-1024x768.png`、`ui-rec4-regression-session-1440x900.png` 和 `ui-rec4-regression-library-1440x900.png`。
+- 收口结论：UI-REC0～UI-REC4 全部完成，本轮 UI 高保真恢复任务结束；当前权威路线没有 UI-REC5。历史 HF-R5、UI-R6、UI-R7 不得作为后续阶段重新执行。
+- 交付边界：最终本地 Git 收口已执行，UI 实现提交为 `c9f1a64`，项目文档由独立文档提交收口；未推送、未创建 PR、未部署。Gradio `upload_progress?upload_id=undefined` 404 继续作为独立非阻塞技术债务记录。
 
-> 本节是唯一当前状态。下方全部 UI-0/UI-R/UI-HF/HF-R 内容只用于历史追溯，不得作为下一轮实施入口或完成结论。
+## UI-REC3：桌面文档库单页高保真落地（已完成）
+
+- 状态：`completed`。UI-REC2 已获得负责人视觉校准批准并完成；UI-REC3 的实现、同视口对照、三视口结构回归和质量门禁已完成，并已获得负责人视觉批准。
+- 视觉范围：仅覆盖 1440×900 桌面文档库。标题、真实上传/索引入口、搜索与筛选、紧凑文档行、选中态和右侧文档详情检查器已按冻结基准收敛。
+- 真实交互：文档行使用真实 SQLite 目录数据；鼠标或键盘选择文档行会通过 Gradio 事件链更新详情选择器、完整 `document_id`、hash、统计、定位方案、错误详情和既有生命周期入口。
+- 负责人反馈校准：上传组件已消除外层 File 容器与内部按钮的双层尺寸错位，按钮与容器统一为 `176×42px`；空间导航限制为内容高度，最近文档区从导航下方直接开始并可完整显示 3 条夹具记录。
+- 交互复核：在隔离浏览器中完成“文档库 → 学习会话 → 提问 → 回答 → PDF/Markdown 来源 → 复制回答”流程；回答和来源正常更新，复制按钮进入“回答已复制”，console error/warn 为 0。7865 仍是确定性安全 QA 夹具，不代表真实外部模型回答质量。
+- 几何结果：1440×900 下文档 `scrollWidth/scrollHeight=1440/900`；工作区 `1392×790`；侧栏 `216×790`；主区 `768×790`；检查器 `368×790`；工具栏 `710×106`；文档列表面板 `710×338.4`；三栏无重叠。
+- 视觉证据：`output/playwright/ui-rec3-final-library-1440x900.png`；Figma 并排图 `output/playwright/ui-rec3-library-comparison-1440x900.png`；结构回归为 `ui-rec3-regression-1024x768.png`、`ui-rec3-regression-390x844.png` 和 `ui-rec3-regression-390x844-context.png`。
+- 质量门禁：UI 定向 30 项、全量 95 项通过；`compileall`、`git diff --check`、敏感信息检查通过；浏览器 console error/warn 为 0；CSS 保持 162 个 `!important` 和 3 个 `@media`。
+- 业务边界：搜索、筛选和排序不改变 `document_filter`；未修改解析、RAG、Embedding、Qdrant、SQLite Schema、会话、笔记、引用、生命周期、`document_id` 或 `source_locator` 语义。
+- 未执行：Git 提交/推送/PR/部署和 Gradio 上传进度 404 修复。
+
+> 本节是唯一当前状态。下方 UI-REC0/UI-REC1 与全部 UI-0/UI-R/UI-HF/HF-R 内容只用于历史追溯，不得作为当前完成结论。
 
 ---
 

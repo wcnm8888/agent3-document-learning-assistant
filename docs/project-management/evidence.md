@@ -1,5 +1,80 @@
 # 项目证据
 
+## UI-REC4 移动端上下文与最终回归证据（2026-08-03～2026-08-04）
+
+| 项目 | 证据 |
+| --- | --- |
+| 确定性状态 | `tests/fixtures/ui_visual_baseline.py` 提供临时 SQLite 中的索引文档、真实回调问答、PDF/Markdown 来源和当前会话笔记；未使用或删除生产数据与真实 Qdrant points。 |
+| 390×844 学习会话 | `output/playwright/ui-rec4-mobile-session-390x844.png`；页面 `scrollWidth/scrollHeight=390/844`，导航菜单可打开并在选择页面后关闭。 |
+| 移动来源面板 | `output/playwright/ui-rec4-mobile-context-sources-390x844.png`；底部面板边界 `x=0, y=454, w=390, h=390`；PDF 显示 Happy-LLM 第 6 页，Markdown 显示第 3 章、段落 2、行 11-14。 |
+| 移动笔记面板 | `output/playwright/ui-rec4-mobile-context-notes-390x844.png`；使用真实保存回调写入临时 SQLite，状态显示“笔记已保存”，笔记仍绑定当前会话和 `fixture-pdf-happy-llm`。 |
+| 移动文档详情 | `output/playwright/ui-rec4-mobile-document-detail-390x844.png`；全屏面板边界 `x=0, y=8, w=390, h=836`，完整 `document_id`、hash、统计、定位方案和生命周期入口可访问；开启时菜单触发器隐藏。 |
+| 触控与可访问性 | 来源/笔记 Tab 均为 `174×44px`，关闭按钮为 `44×44px`；状态有文字，错误/定位说明不只依赖颜色，Markdown 明确不伪装成页码。 |
+| 1024×768 | `output/playwright/ui-rec4-regression-tablet-1024x768.png` 与 `ui-rec4-tablet-context-1024x768.png`；页面无溢出，菜单触发器为按钮式入口，导航抽屉打开后边界为 `280×768`，检查器打开时为 `300×616`。 |
+| 桌面回归 | `output/playwright/ui-rec4-regression-session-1440x900.png`、`ui-rec4-regression-library-1440x900.png`；页面 `1440×900`，工作区 `1392×790`，会话 Composer 底边约 `865px`，文档库与检查器无结构回归。 |
+| 浏览器日志 | 隔离浏览器 console errors 0、warnings 0；三种视口均无页面级横向或全局纵向溢出。 |
+| 自动化与质量 | `tests/test_phase5_ui.py` 30 项通过；全量 `pytest` 95 项通过；`compileall src tests`、`git diff --check` 通过。 |
+| CSS 架构 | `src/doc_qa/ui.css` 2481 行、162 个 `!important`、3 个 `@media`；仍是唯一运行时样式权威，未恢复 UI-R/UI-HF/HF-R 历史选择器。 |
+| 负责人最终视觉批准 | 负责人于 2026-08-04 明确回复“UI-REC4 最终视觉验收通过”。 |
+| 当前结论 | 工程门禁和负责人最终视觉验收均通过，状态为 `completed`；UI-REC0～UI-REC4 全部完成，本轮 UI 高保真恢复任务结束。 |
+| Git 收口 | UI 实现已提交为 `c9f1a64`；本文件及其他权威文档由独立文档提交收口。暂存差异检查、敏感信息扫描和 `git diff --check` 通过。 |
+| 后续边界 | 当前权威路线没有 UI-REC5；历史 HF-R5、UI-R6、UI-R7 不再执行。未推送、未创建 PR、未部署；Gradio 404 修复仍是独立任务。 |
+
+## UI-REC3 桌面文档库高保真证据（2026-08-03）
+
+| 项目 | 证据 |
+| --- | --- |
+| 冻结基准 | `docs/assets/ui-visual-baseline/figma-desktop-library-1440x900.png`。 |
+| 确定性真实状态 | `tests/fixtures/ui_visual_baseline.py`；临时 SQLite 包含真实 PDF、Markdown 和归档文档记录，不使用生产 Qdrant points。 |
+| 桌面实现 | `output/playwright/ui-rec3-final-library-1440x900.png`。 |
+| 负责人反馈校准 | `output/playwright/ui-rec3-feedback-library-final-1440x900.png`；上传外壳、按钮和内部内容边界一致，最近文档标题由 `y=544.8` 上移到 `y=353.8`，3 条记录无需挤在底部小区域。 |
+| 同屏对照 | `output/playwright/ui-rec3-library-comparison-1440x900.png`；详细结论见项目根 `design-qa.md`。 |
+| 真实选择 | 点击第二个文档行后，选中 ID、详情标题和隐藏 Gradio 详情状态均切换为 `fixture-markdown-multidocument`；键盘 Enter/Space 复用同一事件链。 |
+| 1440×900 几何 | document `1440×900`；工作区 `1392×790`；侧栏 `216×790`；主区 `768×790`；检查器 `368×790`；工具栏 `710×106`；列表 `710×338.4`；三栏无重叠。 |
+| 结构回归 | `output/playwright/ui-rec3-regression-1024x768.png`、`ui-rec3-regression-390x844.png`、`ui-rec3-regression-390x844-context.png`；两视口 `scrollWidth === clientWidth`。 |
+| 浏览器日志 | console errors 0、warnings 0。 |
+| 学习会话交互复核 | `output/playwright/ui-rec3-feedback-session-function-1440x900.png`；文档库切换学习会话后成功提交“解释一下如何搭建 RAG”，回答、2 个来源、复制按钮和真实回合时间同步更新；复制按钮短暂进入 `copied/回答已复制`。 |
+| 自动化 | `tests/test_phase5_ui.py` 30 项通过；全量 `pytest` 95 项通过；`compileall`、`git diff --check` 通过。 |
+| CSS 门禁 | `src/doc_qa/ui.css` 2172 行、162 个 `!important`、3 个 `@media`；未新增阶段式尾部补丁。 |
+| 安全边界 | 未读取或删除真实文档、真实数据库或 Qdrant points；差异敏感信息匹配数为 0。 |
+| 视觉结论 | 实现方同屏 QA 通过；负责人已于 2026-08-03 明确批准 UI-REC3 视觉结果，状态为 `completed`。 |
+
+## UI-REC2 桌面学习会话高保真证据（2026-08-03）
+
+| 项目 | 证据 |
+| --- | --- |
+| 冻结基准 | `docs/assets/ui-visual-baseline/figma-desktop-session-1440x900.png`。 |
+| 确定性真实状态 | `tests/fixtures/ui_visual_baseline.py`；已索引文档、问题、回答、PDF/Markdown 来源和学习笔记均经真实回调产生。 |
+| 桌面完成态 | `output/playwright/ui-rec2/calibrated-desktop-session-complete-1440x900-review3.png`；真实问答、PDF/Markdown 来源与已保存笔记均可见。 |
+| 桌面空态 | `output/playwright/ui-rec2/after-desktop-session-empty-1440x900.png`；Composer 不随空态失控下沉。 |
+| 1440×900 几何 | 文档 `1440×900`；工作区 `1392×790`；主区 `768×790`；时间线 `702.4×493.2`；Composer `702.4×93.3`，底边 `865.2`；检查器 `368×790`；三栏与 Composer 边界无重叠。 |
+| 滚动策略 | document `scrollWidth=clientWidth=1440`、`scrollHeight=clientHeight=900`；时间线自身承担消息滚动；Composer 首屏完整可见。 |
+| 结构回归 | `output/playwright/ui-rec2/calibrated-regression-1024x768-review2.png`、`calibrated-regression-390x844-review2.png`；无横向或纵向页面溢出，Composer 可见。 |
+| 浏览器日志 | 最终稳定实例 console errors 0、warnings 0。 |
+| 自动化 | `tests/test_phase5_ui.py` 29 项通过；全量 `pytest` 94 项通过。 |
+| CSS 门禁 | `src/doc_qa/ui.css` 2038 行、162 个 `!important`、3 个 `@media`；原位整合校准规则，未新增 UI-REC2/final/fix/override 尾部阶段块。 |
+| 视觉校准 | 面板阴影变量为 `none`；顶部与会话状态胶囊只保留单层；消息卡统一 14px 圆角；最近文档仅首项使用弱表面；来源检查器显示真实来源、真实笔记预览和真实问答范围。 |
+| 第二轮校准 | 范围选择器为统一胶囊形；来源/笔记 Tab 外框上下边界实测均为 `0.8px`；成功勾选已移除；复制按钮真实浏览器点击后进入 `copied` 状态并显示“回答已复制”；回答时间来自 SQLite 回合 `created_at`。 |
+| 第三轮校准 | 范围选择器及其 Gradio 外层均实测为 `132×36px`；来源/笔记 Tab 容器实测 `34px`，两个按钮均为 `30px`，上下内衬各 `2px`，只保留单一均匀内描边。 |
+| 视觉结论 | 实现与浏览器硬门禁通过；负责人已确认视觉校准通过，状态为 `completed`。 |
+| 安全边界 | 临时 SQLite/确定性夹具；未读取或删除真实文档、真实数据库或 Qdrant points。 |
+
+## UI-REC1 CSS 架构重置证据（2026-08-03）
+
+| 项目 | 证据 |
+| --- | --- |
+| 单一样式权威 | `src/doc_qa/ui.css`；`src/doc_qa/ui.py` 使用 `APP_CSS_PATH` 加载；`pyproject.toml` 声明 `doc_qa = ["ui.css"]`。 |
+| 规模收敛 | `ui.py` 1601 行；`ui.css` 1624 行、162 个 `!important`、3 个媒体查询；旧基线为 4345 行 `ui.py`、578 个 `!important`、20 个媒体查询。 |
+| 架构契约测试 | `tests/test_phase5_ui.py` 28 项通过；新增外部 CSS 加载、包资源、唯一网格、断点数量、`!important` 上限及历史阶段标记禁入断言。 |
+| 全量回归 | `pytest` 93 项通过；`compileall` 与 `git diff --check` 通过。 |
+| 桌面浏览器 | `output/playwright/ui-rec1/desktop-session-complete-1440x900.png`、`desktop-library-final-1440x900.png`。 |
+| 平板浏览器 | `output/playwright/ui-rec1/tablet-session-1024x768-approved.png`；无横向溢出，主区与检查器边界明确。 |
+| 移动浏览器 | `output/playwright/ui-rec1/mobile-session-390x844.png`、`mobile-navigation-drawer-390x844.png`、`mobile-context-sheet-390x844.png`。 |
+| 浏览器日志 | 隔离实例 `http://127.0.0.1:7865/`；Playwright console errors 0、warnings 0。 |
+| 报告显隐复核 | 1440×900 打开“学习报告”后报告区按需展开；返回“学习会话”后页面恢复为 `scrollHeight=900`、无全局纵向溢出，最终截图为 `output/playwright/ui-rec1/desktop-session-post-stats-fix-1440x900.png`。 |
+| 数据安全 | 使用 `tests/fixtures/ui_visual_baseline.py` 与临时 SQLite；未删除真实文档、数据库或 Qdrant points。 |
+| 视觉结论 | CSS 架构与结构重叠门禁通过；Figma 高保真视觉验收仍未通过。 |
+
 ## UI-REC0 基线证据（2026-08-03）
 
 | 项目 | 证据 |

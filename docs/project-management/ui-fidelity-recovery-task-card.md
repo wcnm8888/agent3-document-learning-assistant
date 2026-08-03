@@ -1,8 +1,17 @@
 # 文档学习助手 UI 高保真落地修复任务卡
 
-> **历史任务卡，非当前实施入口。** HF-R0～HF-R4 的功能性实现和证据保留，但真实页面尚未通过冻结 Figma 基线。当前唯一状态见 `docs/project-management/current-task.md`；HF-R5 不得自动执行。
+## UI-REC 最终状态（2026-08-04）
 
-## 当前权威状态：HF-R4 已完成（2026-08-03）
+- UI-REC0 可回退基线、UI-REC1 CSS 架构重置和 UI-REC2 桌面学习会话均已完成；UI-REC2 已获负责人视觉校准批准。
+- UI-REC3 桌面文档库已完成实现、真实选择交互、Figma 同屏 QA、三视口结构回归和质量门禁，并已获得负责人视觉批准，状态为 `completed`。
+- UI-REC4“移动端上下文高保真与最终视觉收口”已完成工程与证据收口，并于 2026-08-04 获得负责人最终视觉批准，状态为 `completed`。
+- UI 定向 30 项、全量 95 项通过；CSS 当前为 2481 行、162 个 `!important`、3 个 `@media`。
+- UI-REC0～UI-REC4 全部完成，本任务卡正式收口；当前权威路线没有 UI-REC5。历史 HF-R5、UI-R6、UI-R7 不得重新作为当前阶段执行。
+- 最终本地 Git 收口已执行：UI 实现提交为 `c9f1a64`，文档由独立收口提交保存；未推送、未创建 PR、未部署。Gradio 上传进度 404 仍是独立非阻塞技术债务。
+
+> **下方 HF-R 内容属于历史路线。** 当前实施状态以本文件顶部 UI-REC 摘要和 `docs/project-management/current-task.md` 为准；HF-R5 不得自动执行。
+
+## 历史 HF-R 路线状态：HF-R4 已完成（2026-08-03）
 
 - 状态：`ready_for_hf_r5`；HF-R0～HF-R4 均已完成，HF-R5 尚未执行。
 - HF-R4 交付：真实 citation 受控来源卡、当前会话笔记卡、笔记保存/更新状态，以及 1024px 右侧抽屉与 390px 上下文底部面板。
@@ -12,8 +21,8 @@
 
 > 创建日期：2026-08-03
 > 任务等级：M
-> 状态：`ready_for_hf_r5`
-> 当前阶段：HF-R4 已完成；HF-R5 必须经负责人确认后才可进入。
+> 历史状态：`ready_for_hf_r5`
+> 历史阶段：HF-R4 已完成；该路线已被 UI-REC0～UI-REC4 替代，HF-R5 不再执行。
 > Figma 视觉基线：[Agent3 文档学习助手 UI 重设计 Review v1](https://www.figma.com/design/TjKze3Fwc19gCADBrgtuzJ/Agent3-%E6%96%87%E6%A1%A3%E5%AD%A6%E4%B9%A0%E5%8A%A9%E6%89%8B-UI-%E9%87%8D%E8%AE%BE%E8%AE%A1---Review-v1?node-id=0-1)
 
 ## 1. 任务事实与目标
