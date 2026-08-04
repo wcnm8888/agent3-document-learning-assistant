@@ -9,7 +9,7 @@
 - 质量门禁：UI 定向 30 项、全量 95 项、`compileall`、`git diff --check` 通过；浏览器 console error/warn 为 0；CSS 为 2481 行、162 个 `!important`、3 个 `@media`。
 - 证据：`output/playwright/ui-rec4-mobile-session-390x844.png`、`ui-rec4-mobile-context-sources-390x844.png`、`ui-rec4-mobile-context-notes-390x844.png`、`ui-rec4-mobile-document-detail-390x844.png`、`ui-rec4-regression-tablet-1024x768.png`、`ui-rec4-regression-session-1440x900.png` 和 `ui-rec4-regression-library-1440x900.png`。
 - 收口结论：UI-REC0～UI-REC4 全部完成，本轮 UI 高保真恢复任务结束；当前权威路线没有 UI-REC5。历史 HF-R5、UI-R6、UI-R7 不得作为后续阶段重新执行。
-- 交付边界：最终本地 Git 收口已执行，UI 实现提交为 `c9f1a64`，项目文档由独立文档提交收口；未推送、未创建 PR、未部署。Gradio `upload_progress?upload_id=undefined` 404 继续作为独立非阻塞技术债务记录。
+- 交付边界：最终 Git 收口已执行，UI 实现提交为 `c9f1a64`，项目文档收口提交为 `7cd53e9`；`main` 已推送至私有仓库 `wcnm8888/agent3-document-learning-assistant`。未创建 PR、未部署。Gradio `upload_progress?upload_id=undefined` 404 继续作为独立非阻塞技术债务记录。
 
 ## UI-REC3：桌面文档库单页高保真落地（已完成）
 

@@ -7,7 +7,7 @@
 - UI-REC4“移动端上下文高保真与最终视觉收口”已完成工程与证据收口，并于 2026-08-04 获得负责人最终视觉批准，状态为 `completed`。
 - UI 定向 30 项、全量 95 项通过；CSS 当前为 2481 行、162 个 `!important`、3 个 `@media`。
 - UI-REC0～UI-REC4 全部完成，本任务卡正式收口；当前权威路线没有 UI-REC5。历史 HF-R5、UI-R6、UI-R7 不得重新作为当前阶段执行。
-- 最终本地 Git 收口已执行：UI 实现提交为 `c9f1a64`，文档由独立收口提交保存；未推送、未创建 PR、未部署。Gradio 上传进度 404 仍是独立非阻塞技术债务。
+- 最终 Git 收口已执行：UI 实现提交为 `c9f1a64`，文档收口提交为 `7cd53e9`；`main` 已推送至私有仓库 `wcnm8888/agent3-document-learning-assistant`。未创建 PR、未部署。Gradio 上传进度 404 仍是独立非阻塞技术债务。
 
 > **下方 HF-R 内容属于历史路线。** 当前实施状态以本文件顶部 UI-REC 摘要和 `docs/project-management/current-task.md` 为准；HF-R5 不得自动执行。
 

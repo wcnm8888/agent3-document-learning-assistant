@@ -17,8 +17,9 @@
 | CSS 架构 | `src/doc_qa/ui.css` 2481 行、162 个 `!important`、3 个 `@media`；仍是唯一运行时样式权威，未恢复 UI-R/UI-HF/HF-R 历史选择器。 |
 | 负责人最终视觉批准 | 负责人于 2026-08-04 明确回复“UI-REC4 最终视觉验收通过”。 |
 | 当前结论 | 工程门禁和负责人最终视觉验收均通过，状态为 `completed`；UI-REC0～UI-REC4 全部完成，本轮 UI 高保真恢复任务结束。 |
-| Git 收口 | UI 实现已提交为 `c9f1a64`；本文件及其他权威文档由独立文档提交收口。暂存差异检查、敏感信息扫描和 `git diff --check` 通过。 |
-| 后续边界 | 当前权威路线没有 UI-REC5；历史 HF-R5、UI-R6、UI-R7 不再执行。未推送、未创建 PR、未部署；Gradio 404 修复仍是独立任务。 |
+| Git 收口 | UI 实现提交为 `c9f1a64`，文档收口提交为 `7cd53e9`；暂存差异检查、敏感信息扫描和 `git diff --check` 通过。 |
+| 远程交付 | `main` 已推送至私有仓库 `wcnm8888/agent3-document-learning-assistant`，本地与远程 HEAD 一致；未创建 PR、未部署。 |
+| 后续边界 | 当前权威路线没有 UI-REC5；历史 HF-R5、UI-R6、UI-R7 不再执行。Gradio 404 修复仍是独立任务。 |
 
 ## UI-REC3 桌面文档库高保真证据（2026-08-03）
 

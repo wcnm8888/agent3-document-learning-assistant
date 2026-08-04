@@ -8,7 +8,7 @@
 - 已验证：1440×900、1024×768、390×844 的 `scrollWidth/scrollHeight` 均等于视口；移动来源/笔记 Tab 实测 `174×44px`，关闭按钮 `44×44px`；浏览器 console error/warn 为 0。
 - 质量：UI 定向 30 项、全量 95 项、`compileall`、`git diff --check` 通过；CSS 为 2481 行、162 个 `!important`、3 个 `@media`，`src/doc_qa/ui.css` 仍为唯一运行时样式权威。
 - 收口：UI-REC0～UI-REC4 全部完成，本轮 UI 高保真恢复任务结束；没有 UI-REC5。旧 HF-R5、UI-R6、UI-R7 仅保留历史追溯，不再执行。
-- 交付：最终本地 Git 收口已执行，UI 实现提交为 `c9f1a64`，文档由独立收口提交保存；未推送、未创建 PR、未部署。Gradio 上传进度 404 未修复。
+- 交付：最终 Git 收口已执行，UI 实现提交为 `c9f1a64`，文档收口提交为 `7cd53e9`；`main` 已推送至私有仓库 `wcnm8888/agent3-document-learning-assistant`。未创建 PR、未部署。Gradio 上传进度 404 未修复。
 
 ## UI-REC3 桌面文档库单页高保真落地（2026-08-03）
 
