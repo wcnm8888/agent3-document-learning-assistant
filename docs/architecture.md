@@ -1,184 +1,129 @@
-# 初版架构
+# 当前架构
 
-> 本文件前部的 Phase 2～8 模块说明来自原单 PDF 产品基线；当前多文档任务 Phase 2 的解析协议、Markdown parser、统一文档模型和文档目录实现补充见本文后部。当前阶段状态以 `docs/project-management/current-task.md`、`roadmap.md` 和 `implementation-plan.md` 为准。
+## 1. 系统定位
 
-```text
-Gradio UI
-  -> Application Services
-     -> Document Ingestion Service
-        -> MarkItDown / parser -> chunker -> Embedding -> Qdrant
-     -> Q&A Service
-        -> query embedding -> Qdrant -> context/citations -> DeepSeek
-     -> Learning Service
-        -> MemoryTool / SQLite -> notes, events, statistics
+Agent3 是本地单用户文档学习助手。系统接收 PDF / Markdown，建立可按 `document_id` 隔离的向量索引，并在问答时返回可追溯来源；SQLite 负责业务状态，Qdrant 负责向量检索，Gradio 提供桌面、平板和移动端 UI。
+
+本架构不包含认证、多租户、Neo4j、公网部署或多实例一致性。
+
+## 2. 逻辑架构
+
+```mermaid
+flowchart LR
+    U["本地用户"] --> UI["Gradio UI / CLI"]
+    UI --> ING["文档解析与索引"]
+    UI --> QA["检索增强问答"]
+    UI --> LEARN["会话、笔记与学习统计"]
+    UI --> LIFE["文档生命周期"]
+    ING --> EMB["Embedding 服务"]
+    ING --> QD["Qdrant 向量库"]
+    ING --> DB["SQLite 业务库"]
+    QA --> QD
+    QA --> LLM["DeepSeek 兼容接口"]
+    QA --> DB
+    LEARN --> DB
+    LIFE --> DB
+    LIFE --> QD
 ```
 
-## 模块边界
+## 3. 模块职责
 
-- UI 只负责输入、展示和状态，不直接依赖 Qdrant、Neo4j 或底层 Tool。
-- 文档摄入服务负责解析、分块、哈希、幂等和索引状态。
-- 问答服务负责检索、来源、提示词和回答结构。
-- 学习服务负责会话、事件、笔记和报告。
-- Qdrant 保存文档片段向量和元数据。
-- SQLite 保存文档、会话、问题、笔记和索引任务状态。
-- Neo4j 暂不进入第一版核心路径。
+| 模块 | 当前职责 |
+|---|---|
+| `config.py` | 从环境变量构建运行配置并校验关键参数 |
+| `pdf_parser.py` | 解析 PDF 文本并保留页码 |
+| `markdown_parser.py` | 解析 Markdown 并保留章节、段落、行号 |
+| `document_parser.py` | 按格式路由解析器 |
+| `chunker.py` | 按定位信息切分文本，默认 1200 字符、160 重叠 |
+| `embedding.py` | 调用 Embedding 服务并校验向量维度 |
+| `qdrant_index.py` | collection、point 写入、搜索、计数和按文档删除 |
+| `ingestion.py` | 串联校验、解析、分块、向量化、索引和目录写入 |
+| `document_catalog.py` | 查询文档目录、筛选、排序和更新状态 |
+| `qa.py` | 检索、上下文构建、回答生成和引用组装 |
+| `document_scope.py` | 保存当前问答范围和短期会话上下文 |
+| `memory_store.py` | SQLite schema、事务、会话、引用、笔记、学习事件和操作记录 |
+| `learning.py` | 会话问答、笔记、统计和报告编排 |
+| `lifecycle.py` | 归档、取消归档、删除、恢复和一致性校验 |
+| `health.py` | 配置、Qdrant collection 和 SQLite 健康检查 |
+| `backup.py` | SQLite 一致性备份 |
+| `ui.py` / `ui.css` | Gradio 组件、回调、状态绑定和唯一运行时样式 |
+| `cli.py` | 本地命令行入口 |
 
-## Phase 2 实际模块
+## 4. 核心数据流
 
-- `src/doc_qa/pdf_parser.py`：pypdf 页级解析、文档哈希、章节线索和错误分类。
-- `src/doc_qa/chunker.py`：页感知、字符上限、重叠和非空分块。
-- `src/doc_qa/embedding.py`：复用 `hello-agents==0.2.0` 的 `DashScopeEmbedding`，显式固定模型、维度和批大小。
-- `src/doc_qa/qdrant_index.py`：Qdrant URL/Docker 与本地持久化适配、collection 维度检查、稳定 point ID、元数据验证。
-- `src/doc_qa/ingestion.py`：编排解析 → 分块 → Embedding → upsert → 状态验证。
-- `src/doc_qa/cli.py`：单 PDF 索引命令，不承担问答或 UI 职责。
+### 4.1 文档索引
 
-## Phase 3 实际模块
+1. 校验文件类型，仅接受 PDF / Markdown。
+2. 计算内容 hash 和稳定 `document_id`，识别重复内容。
+3. 按文档类型解析定位信息。
+4. 按定位边界切分文本。
+5. 使用 `text-embedding-v4` 生成 1024 维向量。
+6. 写入 `docqa_text-embedding-v4_dim1024` collection。
+7. 将文档状态、统计、hash、模型和定位方案写入 SQLite。
 
-- `src/doc_qa/qdrant_index.py`：在不改变 Phase 2 索引流程的前提下提供 `query_points`、Top-K、分数阈值和 `document_id` 过滤。
-- `src/doc_qa/deepseek.py`：DeepSeek OpenAI 兼容 Chat Completions 适配、JSON 输出、错误透明度和有限重试。
-- `src/doc_qa/qa.py`：编排查询向量化、检索、上下文构建、回答解析和引用校验；许可证/授权/版权类问题使用受限术语扩展和关键词重排，仍只使用 Qdrant 实际返回分块作为证据。
-- `src/doc_qa/models.py`：检索命中、引用和回答响应结构。
-- `src/doc_qa/cli.py`：新增 `ask` 命令，暂不承担 UI 职责。
+失败信息进入文档目录；既有已索引文档不应因另一文档失败而被改写。
 
-## Phase 4 实际模块
+### 4.2 问答
 
-- `src/doc_qa/memory_store.py`：SQLite schema、事务、外键、WAL、会话、问答来源、笔记、事件和统计查询。
-- `citations.page_start/page_end` 对 Markdown 允许为空；初始化时兼容迁移旧版 `NOT NULL` 引用表并保留既有数据。
-- `src/doc_qa/learning.py`：编排会话上下文、Phase 3 问答、问答持久化、笔记和报告，不直接依赖 UI。
-- `src/doc_qa/qa.py`：支持受限会话上下文；历史只用于指代消解，文档片段仍是事实来源。
-- `src/doc_qa/cli.py`：新增 `session-create`、`ask-session`、`history`、`note-create`、`note-update`、`notes`、`stats` 和 `report` 命令。
+1. UI / CLI 提交问题与 `document_filter`。
+2. 问题向量化后在 Qdrant 中检索，按 `document_id` 过滤。
+3. 低于阈值或没有命中时返回明确的 `no_results`，不伪造答案。
+4. 命中片段被压缩到配置的上下文字符上限。
+5. LLM 生成回答；引用仍来自检索结果，而不是模型自由生成。
+6. 问题、答案状态、引用和学习事件在一个 SQLite 事务中保存。
 
-SQLite 的详细表关系和数据边界见 `docs/database-design.md`。
+### 4.3 会话与学习记录
 
-## Phase 5 实际模块
+- 持久记忆保存在 SQLite 的 session、turn、citation、note 和 learning event 表中；
+- UI 同时维护受限的短期上下文，默认最近 6 轮、最多 4000 字符；
+- 会话切换隔离问答历史；
+- 文档范围切换会清空当前回答、来源和待保存笔记，但不会删除持久记录；
+- 笔记与 session、turn、document 建立显式关联。
 
-- `src/doc_qa/ui.py`：Gradio 适配层，负责输入、展示、事件绑定和状态转换，不承载检索、索引、LLM 或 SQL 业务逻辑。
-- `UIController.index_document` → `DocumentIngestionService`：上传 PDF、解析、分块、Embedding、Qdrant upsert 和文档目录状态。
-- `UIController.ask` → `LearningService` → `QuestionAnswerService`：会话上下文、查询 Embedding、Qdrant 检索、DeepSeek 回答、来源持久化和学习事件。
-- `UIController.save_note/update_note/refresh_stats` → `LearningService`/`SQLiteMemoryStore`：笔记、事件、统计和确定性报告。
-- Gradio 状态通过 `gr.State` 维护 session、turn 和 source locator；移动端通过 CSS 将三栏布局折叠为纵向布局，并将来源区域放到内容末尾。
-- 文档目录元数据持久化在 SQLite `documents` 表中，向量仍只存储在既有 Qdrant collection 中。
+### 4.4 文档生命周期
 
-Phase 2 使用 pypdf 直接读取 PDF，而不是直接调用 `RAGTool.add_document`：页码是本阶段的硬性来源字段，直接读取可以保留页级边界；后续仍可在适配层替换解析器。
+- 归档：将状态改为 `archived`，保留 SQLite 记录和 Qdrant points；
+- 取消归档：恢复为 `indexed`；
+- 删除：必须确认，以 `document_id` 精确删除 Qdrant points，SQLite 保留 `deleted` tombstone 和操作记录；
+- 删除失败：记录错误并回退到原状态或标记 `inconsistent`；
+- 恢复：从 tombstone 的源文件重新索引，并要求恢复后的 `document_id` 不变；
+- 一致性校验：比较 SQLite 预期 point 数和 Qdrant 实际 point 数。
 
-## 关键数据隔离
+## 5. 数据所有权与一致性
 
-至少使用 `user_id`、`knowledge_base_id`、`document_id`、`chunk_id` 和 `embedding_profile` 进行隔离和追踪。
+| 数据 | 权威存储 | 一致性规则 |
+|---|---|---|
+| 文档目录和生命周期状态 | SQLite | Qdrant 只保存可检索向量，不作为业务状态权威 |
+| 文档向量 | Qdrant | point payload 必须携带 `document_id` 和来源定位信息 |
+| 会话、回答、引用、笔记 | SQLite | 写入失败不能伪装为成功 |
+| 当前 UI 选中范围 | UI state | 通过现有回调同步，不改变持久业务语义 |
 
-## 重要决策
+SQLite 开启外键、10 秒 busy timeout，并在支持时使用 WAL。跨 SQLite 与 Qdrant 的删除无法成为单一数据库事务，因此通过前后计数、操作日志、状态机和失败回退实现补偿一致性。
 
-Embedding 不能混用。v3 与 v4 必须分别使用不同 collection 或完成明确迁移。回答必须保留引用所需的文档名、页码、章节和 chunk 元数据。
-## Phase 6 评测隔离边界
+## 6. 来源定位契约
 
-v3/v4 评测在 collection 层完全隔离：v4 继续服务现有应用，v3 仅写入 `docqa_text-embedding-v3_dim1024_eval`。评测 runner 在执行前后检查 collection 维度、point 数量和来源元数据；模型名、维度和 collection 不匹配时直接失败，不自动迁移或删除数据。
+- PDF：页码是业务定位事实；
+- Markdown：章节、段落和行号是业务定位事实；
+- Markdown 引用的页码字段在最终 SQLite schema 中允许为空，禁止伪造页码；
+- `source_locator` 和 `document_id` 是服务层、UI 和测试共同依赖的契约。
 
-## Phase 7 运行拓扑
+## 7. UI 架构
 
-交付准备阶段采用本地优先拓扑：Gradio 应用运行在 Python 进程，Qdrant 运行在 Docker `docqa-qdrant`，SQLite 和授权文档保存在本地持久化目录。应用不直接暴露数据库端口，默认只监听 `127.0.0.1`。
+UI 采用“顶部品牌栏 + 左侧空间导航 + 中间独立工作区 + 右侧上下文检查器”。桌面端三栏展示；平板端收缩导航或检查器；移动端使用导航抽屉和上下文底部面板。`src/doc_qa/ui.css` 是唯一运行时样式权威，业务数据仍由 `ui.py` 的真实回调提供。
 
-生产拓扑暂不启用。原因是当前版本没有认证、限流、独立应用健康端点和多实例 SQLite 存储方案；若未来部署，必须使用独立 Qdrant/SQLite 数据边界、Secret Manager 和可恢复备份。
+详细视觉规则见 [设计规格](design-spec.md)。
 
-## Phase 8 运维入口
+## 8. 运行与安全边界
 
-- `doc_qa.cli health`：只读检查配置、Qdrant healthz、v3/v4 collection 和 SQLite 完整性，失败时返回非零退出码。
-- `doc_qa.cli backup-sqlite`：使用 SQLite 原生 backup API 创建一致性备份，并校验备份文件。
-- `docker-compose.local.yml`：只管理 Qdrant，不管理应用容器，不自动连接生产。
+- 默认绑定 `127.0.0.1`，不是公网生产服务；
+- API Key、Token 和 `.env` 只用于本地运行，不进入日志、文档或提交；
+- 本地 Qdrant 可使用 `data/qdrant`，也可通过 URL 连接外部实例；
+- 生命周期和故障测试必须使用临时 SQLite / Qdrant；
+- 未实现认证、多租户、权限、限流、Secret Manager、多实例共享存储或线上灾备。
 
-## 多文档与 Markdown 知识库管理：Phase 1 设计
+## 9. 已知架构风险
 
-### 统一数据协议
-
-采用三层边界，避免 PDF 页模型直接污染 Markdown：
-
-```text
-DocumentSource
-  -> DocumentUnit
-     -> DocumentChunk
-        -> Embedding -> Qdrant payload
-```
-
-`DocumentSource` 表示文件身份和索引配置：
-
-- `document_id`：原始文件字节的 SHA-256；
-- `document_name`、`format`、`source_path`、`content_hash`；
-- `embedding_profile`：固定 `text-embedding-v4:1024`；
-- `source_locator_scheme`：`pdf-page-v1` 或 `markdown-heading-line-v1`。
-
-`DocumentUnit` 表示可定位的原始内容单元：
-
-- `section_path`、`section`、`paragraph_index`；
-- `line_start`、`line_end`；
-- PDF 可填写 `page_start`、`page_end`，Markdown 保持为空；
-- `content`。
-
-`DocumentChunk` 表示用于向量化的稳定片段：
-
-- 继承文档身份和来源定位；
-- 增加 `chunk_id`；
-- payload 必须包含 `format`、`embedding_profile`、`source_locator_scheme` 和适用的页码/行号字段。
-
-### 解析适配器
-
-- PDF adapter 复用现有 `pypdf` 页级解析和现有 PDF source_locator 兼容格式；
-- Markdown adapter 采用保留原始行号的块解析策略，识别嵌套标题、段落、代码块、列表和表格；
-- HTML/script 只作为文档数据保留或转义展示，不执行、不改变系统 Prompt；
-- `DocumentParser` 统一返回 `DocumentSource` 和 `DocumentUnit`，不让 Qdrant 或 UI 依赖具体 parser。
-
-### 摄入和索引边界
-
-`DocumentIngestionService` 扩展为统一入口，负责：
-
-```text
-validate -> parse -> normalize -> chunk -> embed -> upsert -> verify -> catalog update
-```
-
-解析器、分块器和 Embedding provider 通过适配器注入；Qdrant upsert 只接受统一 `DocumentChunk`。同一 v4 collection 通过 `document_id` 和 `embedding_profile` 隔离，不按文档创建 collection。
-
-### 问答和切换边界
-
-- `QuestionAnswerService` 继续负责查询 Embedding、Qdrant 检索、来源和回答；
-- 指定文档时必须使用 Qdrant `document_id` filter；全部文档时必须显式传入知识库范围语义；
-- UI 切换文档范围时清空当前回答、来源、待保存笔记和会话上下文，历史记录仍由 SQLite 保留；
-- 不直接采用 `hello-agents` 的 `RAGTool` 作为业务入口，因为其 advanced search 默认包含 MQE/HyDE、返回字符串且不满足当前结构化引用和严格范围契约；如复用，仅限适配器内部并需单独验证。
-
-### 失败和回滚
-
-- validating、parsing、indexing 任一阶段失败只标记当前文档失败，不删除或覆盖已有 points；
-- 重复内容返回 duplicate 操作结果，canonical 文档保持 indexed；
-- Qdrant 写入前必须完成维度、collection、metadata 和 document_id 校验；
-- SQLite 迁移和真实多文档验证优先使用临时数据库/临时 collection，基准 v4 collection 只做只读回归。
-
-### Phase 1 设计时的未实现项（历史记录）
-
-## Phase 2 实现补充（历史完成记录，2026-08-01）
-
-- 已落地 `DocumentSource -> DocumentUnit -> ParsedDocument -> DocumentChunk` 的解析侧协议。
-- `DocumentParser` 按扩展名分派 `PdfParser` 和 `MarkdownParser`；PDF 继续使用原有页级解析与分块，Markdown 使用章节、段落和原始行号定位。
-- `DocumentIngestionService.parse_document()` 与 `parse_and_chunk()` 只做解析/分块，不调用 Embedding 或 Qdrant；既有 `index_pdf()` 行为保持兼容。
-- `DocumentCatalogService` 通过 SQLite 管理文档元数据和 canonical 状态；Phase 2 未执行真实 Schema 文件迁移，仅在初始化时对临时 SQLite 做可重复加法迁移验证。
-
-本节保留 Phase 1 设计阶段的边界说明；Markdown parser、统一摄入入口和多文档 catalog 已在后续 Phase 2/3 落地，UI 扩展仍留待 Phase 4。
-
-## 多文档与 Markdown 任务：Phase 3 实现补充（2026-08-01）
-
-- `DocumentIngestionService.index_document()` 是 PDF/Markdown 统一真实索引入口；`index_pdf()` 作为兼容包装。
-- 真实数据流为：`DocumentParser → PageAwareChunker → EmbeddingProvider(text-embedding-v4/1024) → QdrantIndexer → DocumentCatalogService`。
-- `QdrantIndexer` 在同一 v4 collection 上提供按 `document_id` 的 point 计数和检索过滤；未为文档创建独立 collection。
-- 重复索引通过稳定 `chunk_id` 识别已有 points，只对缺失 chunk 调用 Embedding；重复操作返回 duplicate。
-- 历史 point 只允许通过 `set_payload` 补齐格式、哈希、Embedding profile 和 locator scheme，不重建向量、不改变 point ID。
-- `DocumentScopeState` 是 UI 无关的范围状态边界；切换文档或全部文档范围时清空临时上下文、来源和待保存笔记，Phase 4 已接入 Gradio。
-
-## 文档生命周期管理设计（方向 B，规格阶段）
-
-- `DocumentLifecycleService` 负责归档、删除、恢复、重新索引和一致性检查；UI 只传递 document_id、确认标志和操作结果。
-- SQLite 记录保留 tombstone；`archived` 不删除 Qdrant，`deleted` 要求 document_id 精确过滤后 points 为 0。
-- 删除采用 `deleting` 中间态和操作日志，外部 Qdrant 操作失败恢复原状态；最终 SQLite 提交失败进入 `inconsistent`，不得伪造成功。
-- 历史 turns、citations、notes 和 learning events 保留，删除后禁止新增该文档的来源关联。
-
-## 多文档与 Markdown 任务：Phase 4 UI 实现补充（2026-08-01）
-
-- `UIController.index_document()` 支持 `.pdf`、`.md` 和 `.markdown`，通过 `DocumentIngestionService` 和 `DocumentCatalogService` 完成索引与状态反馈。
-- 文档库展示格式、短 document_id、状态、页数或 Markdown 单元数、分块、points、定位方案、更新时间和脱敏错误。
-- 问答范围支持“全部文档”和指定 `document_id`；切换范围会清空当前回答、来源、待保存笔记和临时会话上下文，但保留 SQLite 中的历史数据。
-- 来源展示保留 PDF 页码，Markdown 使用章节/段落/行号；`Citation.page_start/page_end` 允许为空，避免伪造 Markdown 页码。
-- UI 只通过摄入、学习和问答服务访问数据；Gradio CSS 覆盖 1440×900、1024×768 和 390×844 的三栏/纵向布局。
+- Gradio 内部 DOM 与上传进度端点属于上游依赖，`upload_progress?upload_id=undefined` 404 尚未关闭；
+- SQLite 与 Qdrant 是补偿一致性，不是分布式事务；
+- 外部 Embedding / LLM 可用性和成本受供应方影响；
+- 当前没有 CI，自动化门禁依赖本地执行。

@@ -13,7 +13,7 @@
 优先使用 SQLite 在线备份能力或 `VACUUM INTO` 生成临时备份，再校验备份文件；不要在数据库写入期间只复制主文件而忽略 `-wal`。示例命令仅供运维执行，当前阶段不自动运行：
 
 ```powershell
-E:\Agent\docqa-venv311\Scripts\python.exe -c "import sqlite3; c=sqlite3.connect(r'data/docqa.sqlite3'); c.execute(\"VACUUM INTO 'data/docqa.sqlite3.backup'\"); c.close()"
+python -c "import sqlite3; c=sqlite3.connect(r'data/docqa.sqlite3'); c.execute(\"VACUUM INTO 'data/docqa.sqlite3.backup'\"); c.close()"
 ```
 
 项目提供等价的可复现 CLI，默认不覆盖已有目标文件：
@@ -21,7 +21,7 @@ E:\Agent\docqa-venv311\Scripts\python.exe -c "import sqlite3; c=sqlite3.connect(
 ```powershell
 cd "E:\Agent\开发实践\Agent3-智能文档问答助手"
 $env:PYTHONPATH="$PWD\src"
-E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.cli backup-sqlite data/backups/docqa.sqlite3
+python -m doc_qa.cli backup-sqlite data/backups/docqa.sqlite3
 ```
 
 只有明确指定 `--overwrite` 才允许覆盖同名备份。备份命令使用 SQLite 原生 backup API，并在完成后执行 `PRAGMA integrity_check`。

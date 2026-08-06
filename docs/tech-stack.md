@@ -1,46 +1,74 @@
-# 技术栈与依赖策略
+# 当前技术栈
 
-> 本文件同时保留原单 PDF 项目的技术基线和交付阶段记录；其中 Phase 7/8 部分属于历史基线。当前多文档任务的执行状态以 `docs/project-management/current-task.md`、`roadmap.md` 和 `implementation-plan.md` 为准。
+本文件只描述当前实现，不记录阶段演进。依赖范围以 `pyproject.toml` 和锁文件为准。
 
-## 已确认
+## 运行时与应用层
 
-- Python：项目要求 Python 3.10+；本次使用本机 Python 3.11.0rc2 虚拟环境 `E:\Agent\docqa-venv311` 验证。
-- 运行包：`hello-agents==0.2.0`，其 `DashScopeEmbedding` 支持显式传入模型名，但默认仍为 v3。
-- PDF：`pypdf>=5,<6`，保留页级来源。
-- Qdrant：`qdrant-client>=1.12,<2`，支持本地持久化和 URL 远程服务。
-- 测试：`pytest>=8,<9`。
-- UI：第一阶段 Gradio。
-- LLM：DeepSeek OpenAI 兼容 API，默认模型 `deepseek-v4-flash`；模型通过 `DEEPSEEK_MODEL` 配置。文档问答默认通过 `DEEPSEEK_THINKING=disabled` 关闭思考模式，避免有限 `max_tokens` 被 `reasoning_content` 耗尽。
-- Embedding：当前显式使用百炼 `text-embedding-v4`，1024 维；v3 仅作为后续对照评测，不做隐式回退。
-- 向量存储：Qdrant，本地 Docker 优先。
-- 结构化存储：SQLite。
-- 图存储：Neo4j 第二阶段按实际价值启用。
-- UI：Gradio `5.50.0`，启动入口为 `python -m doc_qa.ui`，页面事件通过 `UIController` 调用业务服务。
-- 网络环境兼容：`socksio>=1,<2` 用于当前 Python 环境中的 Gradio/httpx 导入兼容；DeepSeek 默认仍由 `DEEPSEEK_TRUST_ENV=false` 控制是否继承系统代理。
+| 类别 | 当前选择 | 用途 |
+|---|---|---|
+| 语言 | Python `>=3.10` | 全部应用、CLI、数据与测试代码 |
+| UI | Gradio `>=5,<6` | 本地知识工作台和交互回调 |
+| Agent 基础 | `hello-agents==0.2.0` | 项目学习与 Agent 相关依赖 |
+| LLM SDK | OpenAI Python `>=1,<2` | 调用 OpenAI 兼容接口 |
+| HTTP | `httpx>=0.27,<1`、`socksio>=1,<2` | 外部服务请求与代理支持 |
+| PDF | `pypdf>=5,<6` | PDF 文本和页码提取 |
+| 环境变量 | `python-dotenv>=1,<2` | 本地配置加载 |
 
-## 依赖风险
+## 检索与存储
 
-上游仓库根目录是教程和示例集合，不是单独可安装的运行时包。第八章文档要求安装外部 `hello-agents` 包，并提示 0.2.0 与 0.2.9 的兼容性问题。安装前必须核对实际 PyPI 版本、示例 API 和 Python 版本。
+| 类别 | 当前选择 | 关键配置 |
+|---|---|---|
+| Embedding | `text-embedding-v4` | 1024 维 |
+| 向量数据库 | Qdrant / `qdrant-client>=1.12,<2` | 默认本地 `data/qdrant`，也支持 URL |
+| 当前 collection | `docqa_text-embedding-v4_dim1024` | 按模型和维度隔离 |
+| 业务数据库 | SQLite | 默认 `data/docqa.sqlite3` |
+| 回答模型 | DeepSeek 兼容接口 | 默认 `deepseek-v4-flash`，thinking disabled |
 
-## 配置原则
+## 默认运行参数
 
-真实密钥只放本地 `.env`，仓库只保留 `.env.example`。Qdrant collection 名称必须包含模型和维度版本，避免不同模型向量混用。
+| 参数 | 默认值 |
+|---|---:|
+| 分块大小 | 1200 字符 |
+| 分块重叠 | 160 字符 |
+| 检索 Top K | 5 |
+| 相似度阈值 | 0.45 |
+| 检索上下文上限 | 12000 字符 |
+| 会话短期上下文 | 最近 6 轮 |
+| 会话上下文上限 | 4000 字符 |
+| Qdrant 超时 | 10 秒 |
 
-- 当前默认 collection 格式：`docqa_text-embedding-v4_dim1024`。
-- Embedding 默认批大小为 10，符合 `text-embedding-v4` 单次请求上限；对临时 429/5xx/网络错误执行有限重试。
-- 查询检索：`qdrant-client==1.18.0` 使用 `query_points`，默认 Top-K 为 5，普通问题分数阈值为 0.45；许可证/授权/版权类问题使用受限术语扩展、0.25 局部阈值和文档关键词重排，不改变普通问题阈值。
-- 学习闭环：标准库 `sqlite3`，默认数据库 `data/docqa.sqlite3`；启用外键、WAL、事务和按会话/时间/事件类型索引。
-- 记忆边界：默认最近 6 轮、最多 4000 字符；会话历史不替代 Qdrant 文档证据。
+运行值可以由 `.env` 覆盖；不得在文档、日志或提交中明文保存密钥。
 
-## Phase 7 交付边界（历史基线）
+## 开发与质量工具
 
-- 推荐运行方式：本地 Python/Gradio 应用 + Docker Qdrant；暂不容器化应用。
-- 默认监听：`127.0.0.1:7860`；公网部署前必须补齐认证、限流和独立健康端点。
-- 持久化：SQLite 单实例文件、Qdrant 独立 collection/卷、`data/reference/` 和 `eval/` 分开备份。
-- 密钥：本地使用未提交 `.env`，测试使用 CI Secret 或 fake provider，生产使用 Secret Manager；任何环境都不得把密钥写入日志、结果或文档。
-## 原单 PDF 项目 Phase 6 评测工具（历史基线）
+| 工具 | 用途 |
+|---|---|
+| pytest | 单元、集成、UI 契约和安全夹具测试 |
+| `compileall` | Python 语法和可编译性检查 |
+| `git diff --check` | 空白与补丁格式门禁 |
+| setuptools | `src` 布局打包，包含 `ui.css` |
+| Docker Compose | 可选的本地 Qdrant 运行方式 |
+| Playwright / 浏览器夹具 | UI 三视口和状态验收；不是运行时依赖 |
 
-- 评测运行时：现有 `E:\Agent\docqa-venv311` Python 3.11 环境。
-- v3/v4：均为 1024 维，使用独立 Qdrant collection。
-- 评测问答：真实 DeepSeek `deepseek-v4-flash`；结果记录 API 失败和重试次数，不记录密钥。
-- 成本：Embedding 按普通文本输入价格估算；DeepSeek 按实际 usage 和 cache-miss 保守价格估算，详见评测报告。
+仓库当前没有 GitHub Actions 或其他 CI 配置。测试通过指本地已记录结果，不等于 CI 通过。
+
+## UI 样式权威
+
+- `src/doc_qa/ui.py`：Gradio 结构、组件、状态和回调；
+- `src/doc_qa/ui.css`：唯一运行时样式权威；
+- `docs/assets/ui-visual-baseline/`：冻结的视觉基准资产。
+
+不得重新在 `ui.py` 中叠加多代大段 CSS，也不得以静态伪数据替代真实业务回调。
+
+## 明确未采用
+
+- Neo4j 或知识图谱；
+- React / Vue 等独立前端运行时；
+- PostgreSQL、Redis 或对象存储；
+- 认证、用户系统、多租户；
+- 公网生产部署、多实例和容器编排；
+- Secret Manager、限流和生产可观测平台。
+
+## 配置债务
+
+`pyproject.toml` 的项目 description 仍为早期 Phase 2 文案，与当前产品范围不一致。DOC-001 只治理文档，不在本步骤修改项目配置；后续如处理，应建立独立、小范围工程任务。

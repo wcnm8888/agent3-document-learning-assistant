@@ -16,7 +16,7 @@
 ```powershell
 cd "E:\Agent\开发实践\Agent3-智能文档问答助手"
 $env:PYTHONPATH="$PWD\src"
-E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.cli health
+python -m doc_qa.cli health
 ```
 
 健康检查要求本地 `.env` 同时存在 `EMBED_API_KEY` 和 `DEEPSEEK_API_KEY`；输出只显示模型、维度、collection、点数和错误类型，不显示密钥。
@@ -30,7 +30,7 @@ E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.cli health
 ```powershell
 cd "E:\Agent\开发实践\Agent3-智能文档问答助手"
 $env:PYTHONPATH="$PWD\src"
-E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.ui
+python -m doc_qa.ui
 ```
 
 ## 健康检查
