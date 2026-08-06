@@ -1,5 +1,7 @@
 # 文档学习助手 UI 外壳与组件重设计任务卡
 
+> **归档，非当前权威。** 旧 UI-R / UI-HF 路线已关闭；当前设计见 `docs/design-spec.md`，冻结视觉资产见 `docs/assets/ui-visual-baseline/`。
+
 > **历史任务卡，非当前实施入口。** 本任务卡中的 UI-R/UI-HF 记录只用于追溯；当前唯一状态见 `docs/project-management/current-task.md`。任何 `ready_for_release_review` 或“高保真完成”历史表述均不能替代冻结基线的浏览器对照验收。
 
 ## 历史 UI-HF6 收口更新（2026-08-03；不作为当前视觉结论）
@@ -45,7 +47,7 @@
 - 当前应用使用 Gradio，主要 UI 入口为 `src/doc_qa/ui.py`。
 - 当前工作区全量测试为 86 项通过；79 项属于上一阶段历史基线，本轮新增 UI-HF5 状态契约和生命周期绑定测试。
 - Gradio `upload_progress?upload_id=undefined` 404 仍是独立的非阻塞依赖风险，不纳入本任务。
-- 高保真基线：`docs/ui-high-fidelity-baseline.md`。
+- 高保真历史基线：`docs/archive/ui-history/ui-high-fidelity-baseline.md`。
 - 当前为本地单用户，不添加认证、用户系统、多租户、Neo4j 或公网部署。
 
 ## Figma 模板实际参考规格
@@ -153,7 +155,7 @@
 ## 依赖与前置条件
 
 1. `UI-R0` 任务卡和边界确认完成。
-2. `UI-R1` 从模板节点提取实际规格并形成参考清单，输出 `docs/ui-redesign-reference-spec.md`。
+2. `UI-R1` 从模板节点提取实际规格并形成参考清单，历史输出现位于 `docs/archive/ui-history/ui-redesign-reference-spec.md`。
 3. `UI-R2` 完成 Figma 桌面端、平板端和移动端设计稿。
 4. 负责人审核 Figma 设计稿并确认主工作区、侧栏和移动端交互。
 5. 审核通过后，才允许进入代码实现。
@@ -279,7 +281,7 @@
 
 负责人体验确认原 UI-R4/UI-R5 与 Figma 设计稿仍存在明显差距。原阶段的功能性实现记录保留不变；本节新增高保真补全阶段，不把历史完成状态改写为高保真完成。
 
-- 基线文档：`docs/ui-high-fidelity-baseline.md`
+- 历史基线文档：`docs/archive/ui-history/ui-high-fidelity-baseline.md`
 - 当前状态：`UI-HF5` 实现完成、验收待收口，当前不得进入 `UI-HF6`
 - 高保真目标：将“旧 Gradio 三栏适配”补全为“知识工作台外壳 + 独立主工作区 + 上下文检查器”。
 

@@ -1,5 +1,7 @@
 # 文档生命周期管理任务卡
 
+> **归档，非当前权威。** 本任务已完成；当前生命周期事实见 `docs/document-lifecycle-spec.md`、`docs/database-design.md` 和 `docs/document-lifecycle-test-matrix.md`。本文件仅保留任务形成过程。
+
 ## 目标
 
 为当前单用户、本地知识库增加可审计的归档、删除、恢复和重新索引能力，不改变现有 v4 collection、Embedding 模型或真实 Qdrant points。

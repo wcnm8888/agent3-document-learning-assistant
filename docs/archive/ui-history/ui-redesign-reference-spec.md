@@ -1,5 +1,7 @@
 # UI-R1 Figma 模板实际规格提取（历史）
 
+> **归档，非当前权威。** 本文件保存模板观察和 UI-R1 设计推导；当前设计见 `docs/design-spec.md`，冻结视觉资产见 `docs/assets/ui-visual-baseline/`。
+
 > 本文保留模板提取和 UI-R1 设计推导，已不作为当前实施入口。UI-REC0 后唯一冻结视觉目标位于 `docs/assets/ui-visual-baseline/`。
 
 ## 文档定位

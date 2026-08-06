@@ -1,5 +1,7 @@
 # 文档学习助手 UI 高保真落地修复任务卡
 
+> **归档，非当前权威。** UI-REC0～UI-REC4 已关闭并获视觉批准；当前设计见 `docs/design-spec.md`，当前任务见 `docs/project-management/current-task.md`。
+
 ## UI-REC 最终状态（2026-08-04）
 
 - UI-REC0 可回退基线、UI-REC1 CSS 架构重置和 UI-REC2 桌面学习会话均已完成；UI-REC2 已获负责人视觉校准批准。

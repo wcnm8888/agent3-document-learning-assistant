@@ -1,5 +1,7 @@
 # 任务卡：多文档与 Markdown 知识库管理
 
+> **归档，非当前权威。** Phase 0～6 已关闭；当前事实和执行授权见 `docs/README.md` 与 `docs/project-management/current-task.md`。
+
 状态：completed（Phase 6 全量质量门禁与交付收口已完成）
 
 > 当前权威状态（2026-08-01）：Phase 0～6 已完成。真实浏览器问答、来源、笔记、文档切换、响应式验收和全量质量门禁均已通过；Gradio 上传进度 404 保留为非阻塞依赖风险。下方旧阶段描述属于历史记录。
@@ -273,7 +275,7 @@ PDF 的 `page_start/page_end` 保留现有页码语义；Markdown 的页码字�
 - UI 影响已写入 `docs/design-spec.md`；
 - 测试矩阵已写入 `docs/multi-document-test-matrix.md`；
 - 关键取舍已写入 `docs/decisions.md`；
-- Phase 2 实现前置条件和风险已同步到 `current-task.md`、`progress.md`、`evidence.md` 和 `implementation-plan.md`。
+- Phase 2 实现前置条件和风险当时已同步到现行路径 `docs/project-management/current-task.md`、`docs/project-management/progress.md`、`docs/project-management/evidence.md` 和 `docs/implementation-plan.md`。
 
 ## Phase 4 UI 最终收口（2026-08-01）
 

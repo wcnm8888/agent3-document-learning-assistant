@@ -1,6 +1,8 @@
 # Phase 2 QA 清单
 
-> 本清单是原单 PDF Phase 2 的历史 QA 基线。当前多文档任务的 Phase 2 已完成，状态以 `docs/project-management/current-task.md`、`roadmap.md`、`progress.md` 和 `evidence.md` 为准。
+> **归档，非当前权威。** 本清单属于原单 PDF Phase 2；当前测试入口见 `docs/testing-strategy.md`。
+
+> 本清单是原单 PDF Phase 2 的历史 QA 基线。当前状态以 `docs/project-management/current-task.md`、`docs/project-management/roadmap.md`、`docs/project-management/progress.md` 和 `docs/project-management/evidence.md` 为准。
 
 ## 范围
 

@@ -1,5 +1,7 @@
 # UI-REC3 Design QA
 
+> **归档，非当前权威。** 本文件保存已完成的 UI-REC3 桌面文档库视觉验收；当前设计和测试门禁见 `docs/design-spec.md` 与 `docs/testing-strategy.md`。
+
 - Source: `docs/assets/ui-visual-baseline/figma-desktop-library-1440x900.png`
 - Implementation: `output/playwright/ui-rec3-final-library-1440x900.png`
 - Combined comparison: `output/playwright/ui-rec3-library-comparison-1440x900.png`
