@@ -4,7 +4,7 @@
 
 测试用于保护文档解析、索引、检索、问答、持久化、生命周期和 UI 业务语义。功能测试通过不等于视觉高保真通过，也不等于 CI、生产或灾备演练通过。
 
-最近记录的全量基线为 **95 项通过**。该数字来自已完成阶段的本地测试记录；DOC-001 Step 5 重新执行收集并确认仍为 95 项，但没有重新运行应用全量测试。
+最近记录的全量基线为 **140 项通过**，来自 CTX-001 Step 7 的本地全量执行；其中新增的上下文工程评测只验证结构、预算和事实权限，不能替代真实模型回答的人工语义验收。方案 A2 的独立问题改写和拒答零引用已通过自动测试；负责人以明确问题的正确回答及 PDF 第 2 页引用完成真实 UAT，并接受窄表格关系问法可能安全拒答的剩余限制。
 
 仓库当前未配置 CI 工作流。
 
@@ -14,6 +14,7 @@
 |---|---|---|
 | 单元测试 | 解析、分块、配置、格式化、状态转换 | 纯函数、临时文件、替身 |
 | 服务集成 | SQLite、Qdrant 接口、问答编排、生命周期补偿 | 临时 SQLite、内存/临时 Qdrant、假 Embedding/LLM |
+| 上下文结构评测 | GSSC、固定分区、事实权限、范围、双预算、压缩和引用白名单 | 冻结 JSONL、纯 ContextBuilder、结构化脱敏诊断 |
 | UI 契约 | 组件、回调、状态文本、布局类和业务绑定 | Gradio 测试入口、确定性 fixture |
 | 浏览器验收 | 真实渲染、响应式、焦点、滚动、重叠和关键状态 | 真实 Chromium / Playwright |
 | 视觉验收 | 与冻结 Figma 基线比较信息密度与几何关系 | 固定视口、100% 缩放、同一数据状态、人工批准 |
@@ -31,6 +32,9 @@
 | `test_phase4_learning.py` | 会话、记忆、笔记、学习事件和报告 |
 | `test_phase5_ui.py` | UI 结构、状态、响应式契约和视觉恢复约束 |
 | `test_phase6_eval_helpers.py` | 评测辅助逻辑 |
+| `test_context_builder.py` | ContextPacket/Config、GSSC、预算、压缩、事实权限和诊断 |
+| `test_reference_resolver.py` | 显式指代检测、最近历史、有界 non-evidence 提示和确定性 |
+| `test_context_evaluation.py` | 十类冻结上下文场景、只读评测入口和安全回归 |
 | `test_phase8_operations.py` | 健康检查、备份和运行边界 |
 | `test_document_lifecycle.py` | 归档、删除、恢复、一致性和失败回滚 |
 
@@ -45,6 +49,9 @@
 - 文档范围切换清空当前回答、来源和待保存笔记；
 - 会话历史和笔记关联不串用；
 - 无检索结果返回明确状态，不生成伪答案；
+- 文档事实与最终 citation 只来自实际进入本轮 Qdrant Evidence 的来源；
+- history/notes 永久为 non-evidence，冲突或注入文本不能提升事实和引用权限；
+- Prompt 保持固定六分区并同时满足字符/估算 Token 预算；
 - 归档保留向量；删除只删除目标文档 points 并保留 tombstone；
 - 删除失败回退或标记不一致，不影响既有其他文档；
 - 错误信息脱敏。
@@ -54,6 +61,8 @@
 - 数据库测试使用 `tmp_path` 下的 SQLite；
 - Qdrant 使用内存客户端、临时路径或明确的测试替身；
 - Embedding 和 LLM 使用确定性假实现，除非测试明确标记为外部集成；
+- CTX-001 离线评测只读取 `eval/context-engineering-cases.jsonl`，不访问 Qdrant、SQLite、网络或 LLM，不写 `eval/results/`；
+- PowerShell 通过 stdin 运行含中文的 inline Python 验收脚本时，必须显式设置 UTF-8 `OutputEncoding`、使用 `python -X utf8` 并在外部调用前断言问题文本未被替换为 `?`；
 - UI 视觉状态使用 `tests/fixtures/ui_visual_baseline.py` 的确定性业务数据；
 - 禁止连接真实生产 collection 来验证删除、回滚或一致性故障；
 - 禁止删除真实文档、真实数据库或真实 Qdrant points。
@@ -75,6 +84,8 @@ python -m pytest --collect-only -q
 python -m pytest tests/test_phase5_ui.py
 python -m pytest tests/test_document_lifecycle.py
 python -m pytest tests/test_phase3_qa.py tests/test_phase4_learning.py
+python -m pytest tests/test_context_builder.py tests/test_context_evaluation.py
+python eval/run_context_evaluation.py
 ```
 
 ### 文档治理
@@ -128,3 +139,5 @@ python -m pytest tests/test_phase3_qa.py tests/test_phase4_learning.py
 - Gradio 上传进度 404 仍是未关闭的非阻塞风险；
 - 认证、多租户、公网部署和真实生产故障/恢复演练未测试；
 - 外部模型长期稳定性、成本和速率限制没有持续基准。
+- CTX-001 十类离线结构用例已通过；真实回答正确性、冲突裁决和提示注入抵抗已在 Step 6 由负责人完成人工复核；
+- 在线 Qdrant 只读 UAT 的普通问答、引用、范围、无结果和预算行为通过。窄表格关系及部分指代问法仍可能在 Evidence 命中时安全拒答；负责人已接受该非阻塞质量限制，拒答不会附加误导引用；
