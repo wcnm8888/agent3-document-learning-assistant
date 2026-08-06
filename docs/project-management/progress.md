@@ -4,10 +4,10 @@
 
 - 唯一活动任务：`DOC-001 Agent3 文档治理与权威状态收口`；
 - 当前分支：`chore/agent3-document-governance`；
-- 当前 Step：Step 5——链接、状态、敏感信息和漂移审计（已完成）；
-- 状态：`ready_for_step6`；
+- 当前 Step：Step 6——差异审查、分批提交、推送和 Draft PR（已完成）；
+- 状态：`ready_for_step7`；
 - 本 Step 不修改产品代码、测试、配置、数据库或真实数据；
-- 本 Step 不提交、不推送、不创建 PR、不部署。
+- 本 Step 已完成授权范围内的提交、推送和 Draft PR；未合并、未同步 `main`、未部署。
 
 ## 最近完成
 
@@ -69,24 +69,34 @@
 - HEAD、`main`、`origin/main` 仍为 `7e32b11`；
 - 未执行暂存、提交、推送、PR、合并或部署。
 
+### Step 6
+
+- 完整差异和精确暂存范围审查通过，仅交付文档治理变更；
+- 使用项目 `.venv` 运行全量 pytest，95 项通过；
+- Markdown 本地链接、高置信敏感信息、`compileall` 和 `git diff --check` 门禁通过；
+- 完成 3 个内容提交：`f87286a`、`dc2b000`、`c378839`；
+- 推送 `chore/agent3-document-governance` 并创建 [Draft PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1)；
+- GitHub 核验仓库为私有，PR 为 Draft、OPEN，base 为 `main`；
+- 未合并、未同步 `main`、未归档 DOC-001、未部署。
+
 ## 阻塞
 
-当前没有技术阻塞。Step 5 已完成并停止，等待负责人授权 Step 6。
+当前没有技术阻塞。Step 6 已完成并停止，等待负责人授权 Step 7。
 
 ## 下一批准动作
 
-在 Step 5 报告中审查：
+在 Step 6 报告和 Draft PR 中审查：
 
-1. 审计修复是否只涉及文档范围；
+1. 提交拆分、文档内容和 Draft PR 是否可接受；
 2. 是否接受已登记的 `pyproject.toml` description 配置债务留待独立任务；
-3. 是否允许进入 Step 6，执行差异审查、分批提交、推送和 Draft PR。
+3. 是否允许进入 Step 7，执行 PR 审查、合并、同步 `main` 和 DOC-001 归档。
 
-未获批准前不得进入 Step 6。
+未获批准前不得进入 Step 7。
 
 ## 风险
 
 - 归档文件仍保留历史状态和测试数字，只能从 `docs/archive/README.md` 作为历史材料读取；
-- 外部 GitHub 状态在 Step 5 未独立核验；
+- Draft PR 尚未完成审查或合并；
 - 未配置 CI；
 - Step 5 已完成全仓文档链接、状态、敏感信息和漂移审计。
 

@@ -3,11 +3,11 @@
 ## 当前状态
 
 - 任务编号：`DOC-001`；
-- 状态：`ready_for_step6`；
-- 当前 Step：Step 5——链接、状态、敏感信息和漂移审计（已完成）；
+- 状态：`ready_for_step7`；
+- 当前 Step：Step 6——差异审查、分批提交、推送和 Draft PR（已完成）；
 - 当前分支：`chore/agent3-document-governance`；
-- 当前停止点：Step 5 已完成并停止，等待负责人批准 Step 6；
-- 当前授权：DOC-001 Step 5 已用尽，不包含暂存、提交、推送、PR、合并或部署。
+- 当前停止点：Step 6 已完成并停止，等待负责人批准 Step 7；
+- 当前授权：DOC-001 Step 6 已用尽，不包含 PR 审查结论、合并、同步 `main`、任务归档或部署。
 
 ## 目标
 
@@ -57,7 +57,7 @@
 | 3 | 压缩并重建当前权威文档 | completed |
 | 4 | 按批准矩阵归档历史任务和旧 UI 路线 | completed |
 | 5 | 链接、状态、敏感信息和漂移审计 | completed |
-| 6 | 差异审查、分批提交、推送和 Draft PR | not_started |
+| 6 | 差异审查、分批提交、推送和 Draft PR | completed |
 | 7 | PR 审查、合并、同步 main 和任务归档 | not_started |
 
 ## Step 3 交付物
@@ -109,7 +109,7 @@
 ## Git 与回退
 
 - DOC-001 基于 `main` / `origin/main` 的 `7e32b11` 创建功能分支；
-- Step 3 不提交、不推送、不创建 PR；
+- Step 3 当时不提交、不推送、不创建 PR；Step 6 已按授权完成分支交付；
 - 历史原文仍可从 `7e32b11` 和 Git 历史恢复；
 - 后续回退使用明确补丁或 `git revert`，不使用 `reset --hard`、`clean` 或强制推送。
 
@@ -147,6 +147,19 @@
 - 未修改产品代码、测试、配置、数据库、依赖或真实数据；
 - 未暂存、提交、推送、创建 PR、合并或部署。
 
+## Step 6 完成结果
+
+- 完整差异审查确认变更仅涉及 `README.md`、项目 `AGENTS.md` 和 `docs/`；
+- Markdown 本地链接检查：41 份当前文件、70 个相对链接，0 个失效；
+- 高置信敏感信息扫描：84 份 Git 跟踪或待交付文本文件，0 个命中；
+- `python -m compileall -q src tests`、`git diff --check` 通过；
+- 使用项目 `.venv` 运行全量 pytest，95 项通过；
+- 分批提交：`f87286a`（当前权威）、`dc2b000`（历史归档）、`c378839`（治理记录）；
+- 分支 `chore/agent3-document-governance` 已推送到私有远端仓库；
+- 已创建 [Draft PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1)，目标分支为 `main`；
+- 未修改产品代码、测试、配置、数据库、依赖或真实数据；
+- 未合并、未同步 `main`、未归档 DOC-001、未部署。
+
 ## 下一步（未授权）
 
-Step 6 将审查完整差异，按批准的提交结构暂存和提交，推送功能分支并创建 Draft PR。只有负责人在 Step 5 报告后明确批准，才能执行。
+Step 7 将执行 Draft PR 审查、处理审查结果、合并、同步本地 `main` 并归档 DOC-001。只有负责人在 Step 6 报告后明确批准，才能执行。

@@ -36,7 +36,7 @@
 | 3 | 当前权威文档重建 | completed | 文档当前、简洁、一致且通过门禁 |
 | 4 | 按批准矩阵归档历史 | completed | 历史可追溯且不再冒充当前状态 |
 | 5 | 链接、状态、敏感信息和漂移审计 | completed | 没有未解释冲突 |
-| 6 | 差异审查、分批提交、推送、Draft PR | not_started | 提交与远端证据可追溯 |
+| 6 | 差异审查、分批提交、推送、Draft PR | completed | 提交与远端证据可追溯 |
 | 7 | PR 审查、合并、同步 main 和任务归档 | not_started | DOC-001 正式关闭 |
 
 每个 Step 完成后停止；下一 Step 需要负责人明确授权。
@@ -106,10 +106,19 @@
 - 唯一保留的配置漂移是已登记的 `pyproject.toml` 早期 description，不属于本任务文档修改范围；
 - 未修改或运行产品数据，未执行暂存、提交、推送、PR、合并或部署。
 
-- 当前未提交变更可通过逐文件 diff 审查；
-- 后续提交按“规则入口 / 当前权威 / 历史归档 / 最终链接”分批；
+- DOC-001 文档变更已通过逐文件范围和内容审查；
+- 已按“当前权威 / 历史归档 / 治理记录 / 交付证据”分批提交；
 - 回退使用 Git `revert` 或对明确文件应用反向补丁，不使用 `reset --hard`、`clean` 或强制推送；
 - 历史原文始终可从 `main` 基线和 Git 历史恢复。
+
+### Step 6 完成结果
+
+- 本地全量 pytest：95 项通过；
+- Markdown 本地链接、敏感信息扫描、`compileall` 和 `git diff --check` 通过；
+- 提交：`f87286a`、`dc2b000`、`c378839`；
+- 功能分支已推送到 `origin/chore/agent3-document-governance`；
+- 已创建 [Draft PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1)；
+- 未合并、未部署，Step 7 尚未执行。
 
 ## 7. 当前风险
 

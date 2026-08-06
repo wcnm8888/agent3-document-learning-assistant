@@ -23,7 +23,7 @@
 - 当前测试策略：[testing-strategy.md](../testing-strategy.md)；
 - 领域矩阵：[multi-document-test-matrix.md](../multi-document-test-matrix.md)、[document-lifecycle-test-matrix.md](../document-lifecycle-test-matrix.md)。
 
-重要口径：DOC-001 Step 3 是纯文档重建，没有重新运行应用全量测试。95 项是最近完成阶段的记录，不是本 Step 新结果。仓库没有 CI，因此不能表述为 CI 通过。
+重要口径：DOC-001 Step 3～5 是纯文档治理，当时只重新确认测试收集数量；Step 6 在提交前使用项目 `.venv` 重新运行全量 pytest，95 项通过。仓库没有 CI，因此该结果只能表述为本地验证通过，不能表述为 CI 通过。
 
 ## 3. 视觉证据
 
@@ -62,9 +62,16 @@ DOC-001 开始时：
 - `main`、`origin/main` 和 HEAD 同步于 `7e32b11`；
 - 从该基线创建 `chore/agent3-document-governance`；
 - Step 2～5 尚未提交、推送或创建 PR；
-- 本 Step 未部署。
+- 当时未部署。
 
-远端仓库可见性、PR 和部署属于外部状态；截至 DOC-001 Step 5 尚未通过 GitHub API 独立核验，不能仅根据旧文档宣布当前外部状态。
+DOC-001 Step 6 交付状态：
+
+- 提交：`f87286a`（当前权威文档）、`dc2b000`（历史归档）、`c378839`（治理记录）；
+- 远端分支：`origin/chore/agent3-document-governance`；
+- 远端仓库经 GitHub CLI 核验为私有；
+- [Draft PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1) 为 OPEN / Draft，base 为 `main`；
+- 状态检查列表为空，仓库当前未配置 CI；
+- 未合并、未部署，Step 7 尚未执行。
 
 ## 6. DOC-001 证据
 
@@ -123,6 +130,19 @@ DOC-001 开始时：
 - Git index 为空，33 条工作区状态均属于批准的文档治理范围；HEAD、`main`、`origin/main` 均为 `7e32b11`；
 - 没有未解释状态冲突或事实漂移；未修改产品代码、测试、配置、数据库、依赖或真实数据；
 - 未暂存、提交、推送、创建 PR、合并或部署。
+
+### Step 6
+
+- 完整差异和提交范围审查：仅包含 `README.md`、项目 `AGENTS.md` 和 `docs/`；
+- 当前 Markdown 链接检查：41 份文件、70 个本地相对链接，0 个失效；
+- 高置信敏感信息扫描：84 份 Git 跟踪或待交付文本文件，0 个命中；
+- `.env` 未被跟踪，仅 `.env.example` 被跟踪；
+- 全量 pytest：95 项通过；
+- `python -m compileall -q src tests`、`git diff --check` 通过；
+- 归档迁移被 Git 识别为 10 组 rename，原始内容仍可从 `7e32b11` 追溯；
+- 已完成分批提交、功能分支推送和 Draft PR 创建；
+- 未修改产品代码、测试、配置、数据库、依赖或真实数据；
+- 未合并、未同步 `main`、未归档 DOC-001、未部署。
 
 ## 7. 已知未关闭项
 
