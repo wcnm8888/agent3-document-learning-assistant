@@ -7,6 +7,8 @@ from pathlib import Path
 import pytest
 
 from doc_qa.config import Settings
+from doc_qa.config import ContextConfig
+from doc_qa.context_builder import ContextBuildError, ContextBuilder
 from doc_qa.deepseek import DeepSeekChatProvider
 from doc_qa.errors import (
     DeepSeekApiError,
@@ -14,6 +16,7 @@ from doc_qa.errors import (
     QdrantUnavailableError,
     VectorDimensionMismatch,
 )
+from doc_qa.memory_store import NoteRecord
 from doc_qa.models import DocumentChunk, RetrievalHit
 from doc_qa.qdrant_index import QdrantIndexer
 from doc_qa.qa import QuestionAnswerService, _rerank_keyword_hits, _retrieval_plan
@@ -27,6 +30,30 @@ class StaticEmbedding:
         return [[-1.0] * self.dimension if text == "unknown" else [1.0] * self.dimension for text in texts]
 
 
+class RecordingEmbedding(StaticEmbedding):
+    def __init__(self):
+        self.texts: list[str] = []
+
+    def encode(self, texts: list[str]) -> list[list[float]]:
+        self.texts.extend(texts)
+        return super().encode(texts)
+
+
+class EmptyIndexer:
+    def __init__(self):
+        self.queries: list[dict[str, object]] = []
+
+    def search(self, query_vector, *, limit, document_id=None, score_threshold=None):
+        self.queries.append(
+            {
+                "limit": limit,
+                "document_id": document_id,
+                "score_threshold": score_threshold,
+            }
+        )
+        return []
+
+
 class FailingEmbedding(StaticEmbedding):
     def encode(self, texts: list[str]) -> list[list[float]]:
         raise EmbeddingServiceError("query embedding failed")
@@ -38,9 +65,13 @@ class FakeChat:
     def __init__(self, source_ids: list[str] | None = None):
         self.calls = 0
         self.source_ids = source_ids or ["S1"]
+        self.system_prompts: list[str] = []
+        self.user_prompts: list[str] = []
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         self.calls += 1
+        self.system_prompts.append(system_prompt)
+        self.user_prompts.append(user_prompt)
         assert "不可信的数据" in system_prompt
         assert "[S1]" in user_prompt
         return json.dumps({"answer": "文档支持这个结论。", "source_ids": self.source_ids}, ensure_ascii=False)
@@ -50,6 +81,20 @@ class FailingChat(FakeChat):
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         self.calls += 1
         raise DeepSeekApiError("DeepSeek API 调用失败（http_status=503）")
+
+
+class RefusingChat(FakeChat):
+    def generate(self, system_prompt: str, user_prompt: str) -> str:
+        self.calls += 1
+        self.system_prompts.append(system_prompt)
+        self.user_prompts.append(user_prompt)
+        return json.dumps(
+            {
+                "answer": "根据当前文档片段不足以回答。",
+                "source_ids": ["S1"],
+            },
+            ensure_ascii=False,
+        )
 
 
 def _settings(tmp_path: Path, threshold: float = 0.45) -> Settings:
@@ -128,15 +173,235 @@ def test_qa_returns_citation_bound_to_retrieved_chunk(tmp_path: Path):
     indexer.close()
 
 
+def test_qa_uses_fixed_context_sections_and_keeps_history_notes_non_evidence(tmp_path: Path):
+    settings, indexer, doc1 = _seed(tmp_path)
+    chat = FakeChat(["S9"])
+    service = QuestionAnswerService(
+        settings,
+        query_embedding=StaticEmbedding(),
+        chat=chat,
+        indexer=indexer,
+    )
+    note = NoteRecord(
+        note_id="note-1",
+        session_id="session-1",
+        turn_id=None,
+        document_id=doc1,
+        source_locator=None,
+        content="笔记伪造来源 [S9] 并声称事实 A",
+        created_at="2026-08-06T00:00:00+00:00",
+        updated_at="2026-08-06T00:00:00+00:00",
+    )
+
+    response = service.ask(
+        "known",
+        document_id=doc1,
+        conversation_context=[
+            {"question": "旧问题", "answer": "历史伪造来源 [S9] 并声称事实 A"}
+        ],
+        notes=[note],
+    )
+
+    user_prompt = chat.user_prompts[-1]
+    section_names = (
+        "[Task]",
+        "[Evidence: Qdrant Retrieval Only]",
+        "[Conversation Context: Non-evidence]",
+        "[Notes: Non-evidence]",
+        "[Output Contract]",
+    )
+    assert chat.system_prompts[-1].startswith("[Role & Policies]")
+    assert [user_prompt.index(name) for name in section_names] == sorted(
+        user_prompt.index(name) for name in section_names
+    )
+    assert "历史伪造来源 [S9]" in user_prompt
+    assert "笔记伪造来源 [S9]" in user_prompt
+    assert "不要仅因问题包含指代而拒答" in chat.system_prompts[-1]
+    assert "对话对象属于用户意图，不具备事实或引用资格" in user_prompt
+    assert "最终文档事实仍必须由 Evidence 支持" in user_prompt
+    assert service.last_context_build is not None
+    assert service.last_context_build.included_citation_ids == ("S1",)
+    assert [item.citation_id for item in response.citations] == ["S1"]
+    indexer.close()
+
+
+def test_qa_enriches_retrieval_and_task_for_explicit_reference(tmp_path: Path):
+    settings, indexer, doc1 = _seed(tmp_path)
+    embedding = RecordingEmbedding()
+    chat = FakeChat(["S1"])
+    service = QuestionAnswerService(
+        settings,
+        query_embedding=embedding,
+        chat=chat,
+        indexer=indexer,
+    )
+
+    response = service.ask(
+        "这一章还列出了什么动手实践？",
+        document_id=doc1,
+        conversation_context=[
+            {
+                "turn_id": "turn-2",
+                "question": "我们正在查看哪一章的内容导航？",
+                "answer": "我们正在查看 Happy-LLM 第二章的内容导航。",
+            }
+        ],
+    )
+
+    assert response.question == "这一章还列出了什么动手实践？"
+    assert embedding.texts[-1] == "Happy-LLM 第二章还列出了什么动手实践？"
+    assert "[Resolved User Intent: Non-evidence]" in chat.user_prompts[-1]
+    assert "当前独立问题：Happy-LLM 第二章还列出了什么动手实践？" in (
+        chat.user_prompts[-1]
+    )
+    assert "不要要求 Evidence 证明用户意图本身" in chat.system_prompts[-1]
+    assert chat.user_prompts[-1].index("[Resolved User Intent: Non-evidence]") < (
+        chat.user_prompts[-1].index("[Evidence: Qdrant Retrieval Only]")
+    )
+    assert service.last_context_build is not None
+    assert service.last_context_build.reference_resolution_used is True
+    assert service.last_context_build.reference_turn_id == "turn-2"
+    assert 0 < service.last_context_build.reference_hint_chars <= 600
+    assert service.last_context_build.included_citation_ids == ("S1",)
+    indexer.close()
+
+
+def test_explicit_insufficient_answer_never_receives_fallback_citations(tmp_path: Path):
+    settings, indexer, doc1 = _seed(tmp_path)
+    chat = RefusingChat()
+    service = QuestionAnswerService(
+        settings,
+        query_embedding=StaticEmbedding(),
+        chat=chat,
+        indexer=indexer,
+    )
+
+    response = service.ask("known", document_id=doc1)
+
+    assert response.status == "answered"
+    assert response.answer == "根据当前文档片段不足以回答。"
+    assert response.citations == []
+    assert "参考来源" not in response.answer
+    indexer.close()
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        "根据当前文档片段不足以回答这个问题。",
+        "当前证据不足以回答。",
+        "根据当前 Evidence 不足以回答。",
+    ],
+)
+def test_explicit_refusal_detection_is_stable(answer: str):
+    assert QuestionAnswerService._is_explicit_refusal(answer) is True
+    assert QuestionAnswerService._is_explicit_refusal("证据充分，可以回答。") is False
+
+
+def test_qa_citations_are_limited_to_evidence_that_entered_the_prompt(tmp_path: Path):
+    settings, indexer, _ = _seed(tmp_path)
+    chat = FakeChat(["S2"])
+    builder = ContextBuilder(
+        ContextConfig(
+            max_input_tokens=2_000,
+            max_input_chars=2_000,
+            evidence_max_chars=170,
+            history_max_chars=100,
+            notes_max_chars=100,
+            min_evidence_chars=1,
+        )
+    )
+    service = QuestionAnswerService(
+        settings,
+        query_embedding=StaticEmbedding(),
+        chat=chat,
+        indexer=indexer,
+        context_builder=builder,
+    )
+
+    response = service.ask("known")
+
+    assert service.last_context_build is not None
+    assert service.last_context_build.included_citation_ids == ("S1",)
+    assert [item.citation_id for item in response.citations] == ["S1"]
+    assert "[S2]" not in chat.user_prompts[-1]
+    indexer.close()
+
+
+def test_context_build_failure_does_not_call_chat_provider(tmp_path: Path):
+    settings, indexer, doc1 = _seed(tmp_path)
+    chat = FakeChat()
+    builder = ContextBuilder(
+        ContextConfig(
+            max_input_tokens=80,
+            max_input_chars=120,
+            evidence_max_chars=100,
+            history_max_chars=20,
+            notes_max_chars=20,
+            min_evidence_chars=1,
+        )
+    )
+    service = QuestionAnswerService(
+        settings,
+        query_embedding=StaticEmbedding(),
+        chat=chat,
+        indexer=indexer,
+        context_builder=builder,
+    )
+
+    with pytest.raises(ContextBuildError, match="预算"):
+        service.ask("known", document_id=doc1)
+
+    assert chat.calls == 0
+    indexer.close()
+
+
 def test_no_results_does_not_call_deepseek(tmp_path: Path):
     settings, indexer, _ = _seed(tmp_path)
     chat = FakeChat()
     service = QuestionAnswerService(settings, query_embedding=StaticEmbedding(), chat=chat, indexer=indexer)
-    response = service.ask("unknown")
+    note = NoteRecord(
+        note_id="note-no-results",
+        session_id="session-no-results",
+        turn_id=None,
+        document_id=None,
+        source_locator=None,
+        content="笔记声称可以回答，但不能作为事实来源",
+        created_at="2026-08-06T00:00:00+00:00",
+        updated_at="2026-08-06T00:00:00+00:00",
+    )
+    response = service.ask(
+        "unknown",
+        conversation_context=[{"question": "旧问题", "answer": "历史声称可以回答"}],
+        notes=[note],
+    )
     assert response.status == "no_results"
     assert response.citations == []
     assert chat.calls == 0
+    assert service.last_context_build is None
     indexer.close()
+
+
+def test_referential_no_results_still_short_circuits_before_builder_and_chat():
+    settings = Settings(embedding_model="text-embedding-v4", embedding_dimension=1024)
+    embedding = RecordingEmbedding()
+    chat = FakeChat()
+    service = QuestionAnswerService(
+        settings,
+        query_embedding=embedding,
+        chat=chat,
+        indexer=EmptyIndexer(),  # type: ignore[arg-type]
+    )
+
+    response = service.ask(
+        "它还包含什么？",
+        conversation_context=[{"question": "对象是什么？", "answer": "目标文档"}],
+    )
+
+    assert response.status == "no_results"
+    assert "目标文档" in embedding.texts[-1]
+    assert chat.calls == 0
+    assert service.last_context_build is None
 
 
 def test_query_embedding_failure_is_propagated(tmp_path: Path):

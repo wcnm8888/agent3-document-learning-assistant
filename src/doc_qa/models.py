@@ -1,11 +1,167 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+import math
+import re
+from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
+from types import MappingProxyType
+from typing import Mapping
 from urllib.parse import quote
 
 
 EMBEDDING_PROFILE = "text-embedding-v4:1024"
+CONTEXT_PACKET_KINDS = frozenset(
+    {"policy", "task", "rag_evidence", "conversation", "note", "output_contract"}
+)
+PINNED_CONTEXT_PACKET_KINDS = frozenset({"policy", "task", "output_contract"})
+RAG_EVIDENCE_METADATA = frozenset(
+    {"citation_id", "document_id", "chunk_id", "source_locator"}
+)
+RESERVED_CONTEXT_METADATA = frozenset({"kind", "evidence_eligible", "pinned"})
+
+
+def estimate_tokens(text: str) -> int:
+    """对中英文混合文本做确定、保守且无外部依赖的 Token 估算。"""
+    if not isinstance(text, str):
+        raise TypeError("Token 估算输入必须是字符串")
+    if not text:
+        return 0
+
+    chinese_chars = sum(1 for char in text if "\u4e00" <= char <= "\u9fff")
+    ascii_words = re.findall(r"[A-Za-z0-9_]+", text)
+    ascii_word_tokens = math.ceil(len(ascii_words) * 1.3)
+    ascii_content_chars = sum(len(word) for word in ascii_words)
+    ascii_length_tokens = math.ceil(ascii_content_chars / 4)
+    other_non_whitespace = sum(
+        1
+        for char in text
+        if not char.isspace()
+        and not ("\u4e00" <= char <= "\u9fff")
+        and not (char.isascii() and (char.isalnum() or char == "_"))
+    )
+    punctuation_tokens = math.ceil(other_non_whitespace / 2)
+    return max(
+        1,
+        chinese_chars + max(ascii_word_tokens, ascii_length_tokens) + punctuation_tokens,
+    )
+
+
+@dataclass(frozen=True)
+class ContextPacket:
+    """GSSC 候选信息包；事实权限只能由 kind 派生。"""
+
+    packet_id: str
+    kind: str
+    content: str
+    timestamp: datetime
+    relevance_score: float = 0.5
+    stable_order: int = 0
+    metadata: Mapping[str, object] = field(default_factory=dict)
+    char_count: int = field(init=False)
+    estimated_tokens: int = field(init=False)
+    evidence_eligible: bool = field(init=False)
+    pinned: bool = field(init=False)
+
+    def __post_init__(self) -> None:
+        packet_id = self.packet_id.strip() if isinstance(self.packet_id, str) else ""
+        if not packet_id:
+            raise ValueError("ContextPacket packet_id 不能为空")
+        if self.kind not in CONTEXT_PACKET_KINDS:
+            raise ValueError(f"ContextPacket kind 非法: {self.kind}")
+        if not isinstance(self.content, str) or not self.content.strip():
+            raise ValueError("ContextPacket content 不能为空")
+        if not isinstance(self.timestamp, datetime):
+            raise ValueError("ContextPacket timestamp 必须是 datetime")
+        if self.timestamp.tzinfo is None or self.timestamp.utcoffset() is None:
+            raise ValueError("ContextPacket timestamp 必须包含时区")
+        if not isinstance(self.relevance_score, (int, float)) or isinstance(
+            self.relevance_score, bool
+        ):
+            raise ValueError("ContextPacket relevance_score 必须是数字")
+        relevance_score = float(self.relevance_score)
+        if not 0.0 <= relevance_score <= 1.0:
+            raise ValueError("ContextPacket relevance_score 必须在 [0, 1] 范围内")
+        if not isinstance(self.stable_order, int) or isinstance(self.stable_order, bool):
+            raise ValueError("ContextPacket stable_order 必须是整数")
+        if self.stable_order < 0:
+            raise ValueError("ContextPacket stable_order 必须大于等于 0")
+        if not isinstance(self.metadata, Mapping):
+            raise ValueError("ContextPacket metadata 必须是映射")
+
+        metadata = dict(self.metadata)
+        reserved = RESERVED_CONTEXT_METADATA & metadata.keys()
+        if reserved:
+            raise ValueError(f"ContextPacket metadata 包含保留字段: {sorted(reserved)}")
+        if self.kind == "rag_evidence":
+            missing = RAG_EVIDENCE_METADATA - metadata.keys()
+            if missing:
+                raise ValueError(f"rag_evidence metadata 缺少字段: {sorted(missing)}")
+            for key in RAG_EVIDENCE_METADATA:
+                if not str(metadata[key]).strip():
+                    raise ValueError(f"rag_evidence metadata 字段不能为空: {key}")
+
+        object.__setattr__(self, "packet_id", packet_id)
+        object.__setattr__(self, "relevance_score", relevance_score)
+        object.__setattr__(self, "metadata", MappingProxyType(metadata))
+        object.__setattr__(self, "char_count", len(self.content))
+        object.__setattr__(self, "estimated_tokens", estimate_tokens(self.content))
+        object.__setattr__(self, "evidence_eligible", self.kind == "rag_evidence")
+        object.__setattr__(self, "pinned", self.kind in PINNED_CONTEXT_PACKET_KINDS)
+
+
+@dataclass(frozen=True)
+class ContextBuildResult:
+    """ContextBuilder 的只读输出与诊断，不把完整正文写入默认日志。"""
+
+    system_prompt: str
+    user_prompt: str
+    selected_packet_ids: tuple[str, ...]
+    dropped_packet_ids: tuple[str, ...]
+    included_citation_ids: tuple[str, ...]
+    section_usage: Mapping[str, Mapping[str, int]]
+    total_estimated_tokens: int
+    total_chars: int
+    compression_events: tuple[str, ...] = ()
+    drop_reasons: Mapping[str, str] = field(default_factory=dict)
+    over_budget: bool = False
+    reference_resolution_used: bool = False
+    reference_turn_id: str | None = None
+    reference_hint_chars: int = 0
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.system_prompt, str) or not self.system_prompt.strip():
+            raise ValueError("ContextBuildResult system_prompt 不能为空")
+        if not isinstance(self.user_prompt, str) or not self.user_prompt.strip():
+            raise ValueError("ContextBuildResult user_prompt 不能为空")
+        if self.total_estimated_tokens < 0 or self.total_chars < 0:
+            raise ValueError("ContextBuildResult 预算计数不能为负数")
+        if not isinstance(self.reference_resolution_used, bool):
+            raise ValueError("ContextBuildResult reference_resolution_used 必须是布尔值")
+        if not isinstance(self.reference_hint_chars, int) or isinstance(
+            self.reference_hint_chars, bool
+        ):
+            raise ValueError("ContextBuildResult reference_hint_chars 必须是整数")
+        if self.reference_hint_chars < 0:
+            raise ValueError("ContextBuildResult reference_hint_chars 不能为负数")
+        if not self.reference_resolution_used and (
+            self.reference_turn_id is not None or self.reference_hint_chars != 0
+        ):
+            raise ValueError("未使用指代解析时不能携带指代诊断")
+
+        frozen_usage: dict[str, Mapping[str, int]] = {}
+        for section, usage in self.section_usage.items():
+            normalized = dict(usage)
+            if any(not isinstance(value, int) or value < 0 for value in normalized.values()):
+                raise ValueError(f"ContextBuildResult section_usage 非法: {section}")
+            frozen_usage[str(section)] = MappingProxyType(normalized)
+
+        object.__setattr__(self, "selected_packet_ids", tuple(self.selected_packet_ids))
+        object.__setattr__(self, "dropped_packet_ids", tuple(self.dropped_packet_ids))
+        object.__setattr__(self, "included_citation_ids", tuple(self.included_citation_ids))
+        object.__setattr__(self, "section_usage", MappingProxyType(frozen_usage))
+        object.__setattr__(self, "compression_events", tuple(self.compression_events))
+        object.__setattr__(self, "drop_reasons", MappingProxyType(dict(self.drop_reasons)))
 
 
 @dataclass(frozen=True)

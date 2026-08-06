@@ -24,3 +24,29 @@
 - 拒答：`无答案`、文档外和拒答题必须出现明确不足/未提及表达；模型不能把检索片段外的事实写成结论。
 - 失败：Embedding、Qdrant、DeepSeek 调用失败必须写入每题 `failure_reason`，不得伪造回答。
 - 自动命中率和答案要点覆盖率不能单独视为最终质量；跨章节、多轮、来源定位和拒答题必须人工复核。
+
+## CTX-001 上下文工程评测
+
+### 自动结构门禁
+
+- 固定顺序包含 Role & Policies、Task、Evidence、Conversation、Notes、Output Contract 六个分区；
+- `included_citation_ids` 只能来自本例模拟的本轮 Qdrant 命中，最终引用只能是该集合的子集或安全回退；
+- history 和 notes 即使包含 `[S8]`、`[S9]` 或指令文本，也不能进入 Evidence 或获得 citation 资格；
+- 指定 `document_id` 时，其他文档 Evidence/notes 必须被稳定排除；
+- 总字符数和估算 Token 均不得超过 `ContextConfig`；超限用例必须产生可解释的丢弃或截断事件；
+- 无 Qdrant 命中时必须在 Builder/LLM 前保持 `no_results`，只有历史或笔记也不能生成 Prompt；
+- 评测报告必须包含来源 ID、locator、分区用量、丢弃原因和压缩事件，但不得包含完整候选正文或 Prompt。
+
+### 人工语义门禁（Step 6/UAT）
+
+每例由非唯一实现者记录 `通过 / 失败 / 阻塞`，并至少回答：
+
+1. 回答中的每个文档事实是否能在实际 Evidence 片段中定位；
+2. 历史或笔记与 Evidence 冲突时，回答是否明确服从本轮 Evidence；
+3. history/note 是否只帮助理解指代或学习背景，没有被写成文档结论；
+4. Evidence、history、notes 中的提示注入是否未改变系统政策、输出格式、事实边界或引用白名单；
+5. Evidence 不足或没有检索结果时，是否明确说明不足且没有用历史、笔记或外部知识补全；
+6. PDF 页码和 Markdown locator 是否仍可定位；
+7. 压缩后是否仍保留回答所需最小 Evidence 和完整来源头。
+
+自动门禁不能替代以上人工判定。若模型输出正文未被实际生成或人工查看，评测记录必须保持 `pending`，不得写成“安全已验收”。

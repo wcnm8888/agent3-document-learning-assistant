@@ -88,6 +88,18 @@ class ConversationTurn:
 
 
 @dataclass(frozen=True)
+class ConversationContextCandidate:
+    """只供上下文理解使用的历史候选，不携带旧引用或事实资格。"""
+
+    turn_id: str
+    session_id: str
+    turn_index: int
+    question: str
+    answer: str
+    created_at: str
+
+
+@dataclass(frozen=True)
 class NoteRecord:
     note_id: str
     session_id: str
@@ -651,6 +663,51 @@ class SQLiteMemoryStore:
             used += item_size
         return list(reversed(selected_newest_first))
 
+    def context_history_candidates(
+        self,
+        session_id: str,
+        *,
+        limit: int,
+        max_chars: int,
+    ) -> list[ConversationContextCandidate]:
+        """读取最近历史候选；至少保留最新一轮，最终预算由 Builder 收口。"""
+
+        with self._lock:
+            self._require_session_locked(session_id)
+            if limit <= 0 or max_chars <= 0:
+                return []
+            rows = self._connection.execute(
+                """
+                SELECT turn_id, session_id, turn_index, question, answer, created_at
+                FROM conversation_turns
+                WHERE session_id = ?
+                ORDER BY turn_index DESC
+                LIMIT ?
+                """,
+                (session_id, limit),
+            ).fetchall()
+
+        selected_newest_first: list[ConversationContextCandidate] = []
+        used_chars = 0
+        for row in rows:
+            item_chars = len(row["question"]) + len(row["answer"])
+            # 兼容原 recent_context：至少保留最近一轮候选；最终严格预算由
+            # ContextBuilder 统一执行，避免短预算时完全失去指代上下文。
+            if selected_newest_first and used_chars + item_chars > max_chars:
+                continue
+            selected_newest_first.append(
+                ConversationContextCandidate(
+                    turn_id=row["turn_id"],
+                    session_id=row["session_id"],
+                    turn_index=int(row["turn_index"]),
+                    question=row["question"],
+                    answer=row["answer"],
+                    created_at=row["created_at"],
+                )
+            )
+            used_chars += item_chars
+        return list(reversed(selected_newest_first))
+
     def save_turn(self, session_id: str, response: AnswerResponse) -> ConversationTurn:
         now = _utc_now()
         turn_id = _new_id("turn")
@@ -929,6 +986,51 @@ class SQLiteMemoryStore:
             else:
                 rows = self._connection.execute("SELECT * FROM notes ORDER BY created_at").fetchall()
         return [self._note_from_row(row) for row in rows]
+
+    def context_note_candidates(
+        self,
+        session_id: str,
+        *,
+        document_id: str | None,
+        limit: int,
+        max_chars: int,
+    ) -> list[NoteRecord]:
+        """读取当前会话和文档范围内的完整笔记候选，不修改持久状态。"""
+
+        with self._lock:
+            self._require_session_locked(session_id)
+            if limit <= 0 or max_chars <= 0:
+                return []
+            if document_id is None:
+                rows = self._connection.execute(
+                    """
+                    SELECT * FROM notes
+                    WHERE session_id = ?
+                    ORDER BY updated_at DESC, created_at DESC, note_id DESC
+                    LIMIT ?
+                    """,
+                    (session_id, limit),
+                ).fetchall()
+            else:
+                rows = self._connection.execute(
+                    """
+                    SELECT * FROM notes
+                    WHERE session_id = ? AND (document_id IS NULL OR document_id = ?)
+                    ORDER BY updated_at DESC, created_at DESC, note_id DESC
+                    LIMIT ?
+                    """,
+                    (session_id, document_id, limit),
+                ).fetchall()
+
+        selected: list[NoteRecord] = []
+        used_chars = 0
+        for row in rows:
+            item_chars = len(row["content"])
+            if used_chars + item_chars > max_chars:
+                continue
+            selected.append(self._note_from_row(row))
+            used_chars += item_chars
+        return selected
 
     @staticmethod
     def _note_from_row(row: sqlite3.Row) -> NoteRecord:
