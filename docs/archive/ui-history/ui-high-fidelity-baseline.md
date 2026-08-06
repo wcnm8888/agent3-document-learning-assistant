@@ -1,8 +1,10 @@
 # 文档学习助手高保真 UI 落地基线（历史）
 
+> **归档，非当前权威。** 本文件保存 UI-HF / HF-R 审计推导；唯一冻结视觉资产位于 `docs/assets/ui-visual-baseline/`，当前设计契约见 `docs/design-spec.md`。
+
 > UI-REC0 后唯一冻结视觉目标位于 `docs/assets/ui-visual-baseline/`。本文保留 UI-HF/HF-R 的历史审计和设计推导；如与冻结图片、视口或状态定义冲突，以冻结基线为准。
 
-> **基线重置（2026-08-03）**：本文件此前记录的 UI-HF6“完成”仅可视为历史实现记录。当前真实浏览器审计与 Figma Review v1 不一致，权威状态为 `needs_fidelity_rework`。新的视觉契约、P0 清单与 HF-R0～HF-R5 阶段门禁见 `docs/project-management/ui-fidelity-recovery-task-card.md`；HF-R1 尚未执行。
+> **基线重置（2026-08-03）**：本文件此前记录的 UI-HF6“完成”仅可视为历史实现记录。当时的视觉契约、P0 清单与 HF-R0～HF-R5 阶段门禁现归档于 `docs/archive/ui-history/ui-fidelity-recovery-task-card.md`。
 
 ## 历史 UI-HF6 实施与 QA 更新（2026-08-03；不作为当前视觉结论）
 

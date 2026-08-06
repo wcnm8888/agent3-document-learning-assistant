@@ -1,8 +1,10 @@
 # 关键决策
 
-## D-001：Embedding 默认候选为 v4
+## D-001：Embedding 初始候选为 v4（已由 D-006 / D-012 收口）
 
 新项目优先评估 `text-embedding-v4`，固定 1024 维作为第一轮对比基线。`text-embedding-v3` 只作为兼容回退或对照实验。最终选择必须由真实评测集决定。
+
+当前结论：真实评测完成后已固定使用 `text-embedding-v4` / 1024 维和 v4 collection；D-006、D-012 是当前约束，本文保留初始决策过程。
 
 ## D-002：开发阶段本地数据库
 
@@ -71,8 +73,8 @@ SQLite、Qdrant 存储、授权文档和评测结果使用独立目录和备份�
 
 ## D-013：切换文档范围时重置当前问答上下文
 
-切换指定文档、全部文档或其他知识库范围时，UI 清空当前回答、来源、待保存笔记和会话上下文，避免历史回答跨文档进入 Prompt；既有会话、问答和笔记仍保留在 SQLite。该行为将在 Phase 4 UI/学习服务实现并测试。
+切换指定文档、全部文档或其他知识库范围时，UI 清空当前回答、来源、待保存笔记和会话上下文，避免历史回答跨文档进入 Prompt；既有会话、问答和笔记仍保留在 SQLite。该行为已经在 UI/学习服务实现并由当前自动化测试保护。
 
 ## D-014：Phase 1 只设计 SQLite 迁移，不执行 Schema 变更
 
-现有 `documents` 表采用 additive migration 方向，补充格式、内容哈希、Embedding profile、locator scheme、来源单元数和 created_at 等字段，并通过备份、回填、完整性检查和既有引用回归保证兼容。Phase 1 不修改真实数据库，Phase 2 才能在临时数据库中实现和验证迁移。
+`documents` 表采用 additive migration 方向，补充格式、内容哈希、Embedding profile、locator scheme、来源单元数和 created_at 等字段，并通过备份、回填、完整性检查和既有引用回归保证兼容。该迁移随后已在兼容初始化逻辑和临时数据库测试中实现；没有以阶段任务名义迁移或覆盖真实数据库。

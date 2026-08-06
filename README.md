@@ -1,102 +1,119 @@
-# 智能文档学习助手
+# Agent3 文档学习助手
 
-基于 Datawhale `hello-agents` 第八章 8.4 构建的独立应用项目。
+一个面向本地单用户的 PDF / Markdown 知识工作台。它把文档解析、向量检索、可追溯问答、会话记忆、学习笔记和文档生命周期管理放在同一套 Gradio 界面与 Python 服务中。
 
-项目工作目录：`E:\Agent\开发实践\Agent3-智能文档问答助手`
+## 当前能力
 
-官方框架源码参考：`E:\Agent\hello-agents-upstream`
+- 上传并索引多个 PDF / Markdown 文档；
+- 按名称、格式、状态搜索、筛选和排序文档；
+- 在全部文档或指定文档范围内问答；
+- PDF 来源保留页码，Markdown 来源保留章节、段落和行号；
+- 保存和更新学习笔记，隔离不同会话和文档关联；
+- 查看学习统计与报告；
+- 归档、取消归档、重新索引、确认删除、删除失败保护和一致性检查；
+- 桌面、平板和移动端响应式知识工作台。
 
-本项目不直接修改官方框架源码，应用代码、项目文档、评测材料和运行配置独立维护。
+## 技术概览
 
-## 当前状态
+- Python `>=3.10`；
+- Gradio 5.x UI；
+- SQLite 保存文档目录、会话、引用、笔记、学习事件和生命周期操作；
+- Qdrant 保存向量；
+- `text-embedding-v4`，1024 维；
+- 默认 collection：`docqa_text-embedding-v4_dim1024`；
+- DeepSeek 兼容接口生成回答，默认模型配置为 `deepseek-v4-flash`。
 
-原单 PDF 产品的 Phase 0～8 已完成；当前多文档与 Markdown 任务的 Phase 2～6 已完成，真实浏览器问答、来源、笔记、文档切换、响应式验收和全量质量门禁均已通过。Gradio 上传进度 404 仍记录为非阻塞依赖风险。项目没有自动部署、没有提交或推送，也不建议当前版本直接公网部署。
-
-默认 Embedding 为阿里云百炼 `text-embedding-v4`，向量维度 1024，生产 collection 为 `docqa_text-embedding-v4_dim1024`。DeepSeek 通过云 API 调用，真实密钥只放本地 `.env`。
-
-索引命令同时支持 PDF 和 Markdown：
-
-```powershell
-$env:PYTHONPATH="$PWD\src"
-E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.cli index data/reference/<document>.pdf
-E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.cli index data/reference/<document>.md
-```
-
-运行时检查：`python -m doc_qa.cli health`；SQLite 备份：`python -m doc_qa.cli backup-sqlite <destination>`。
-
-## 环境要求
-
-- Windows + Python 3.11 虚拟环境（项目要求 Python 3.10+）。
-- Docker Desktop Linux Engine，用于本地 Qdrant `docqa-qdrant`。
-- 可选使用 `docker-compose.local.yml` 启动隔离的 Qdrant-only 本地实例；不要与已有同端口容器同时启动。
-- 已复制 `.env.example` 为项目根目录 `.env`，再填写本地密钥；不要提交 `.env`。
-- `PYTHONPATH` 指向项目 `src` 目录。
+详细说明见 [架构](docs/architecture.md)、[技术栈](docs/tech-stack.md) 和 [数据库设计](docs/database-design.md)。
 
 ## 本地启动
 
-先确认 Qdrant：
+### 1. 创建环境并安装
 
 ```powershell
-docker ps --filter "name=docqa-qdrant"
-Invoke-WebRequest http://localhost:6333/healthz
+cd E:\Agent\开发实践\Agent3-智能文档问答助手
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e .
 ```
 
-运行配置、Qdrant 两个 collection 和 SQLite 状态检查：
+也可以按已有锁文件或 `requirements.txt` 安装。不要把 `.env`、Token 或本地数据库提交到仓库。
+
+### 2. 配置环境变量
 
 ```powershell
-$env:PYTHONPATH="$PWD\src"
-E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.cli health
+Copy-Item .env.example .env
 ```
 
-如需创建隔离的 Qdrant-only 实例：
+按需配置 Embedding、LLM 和 Qdrant 连接。默认本地数据路径为：
+
+- SQLite：`data/docqa.sqlite3`；
+- Qdrant：`data/qdrant`。
+
+### 3. 启动 UI
 
 ```powershell
-docker compose -f docker-compose.local.yml config
-docker compose -f docker-compose.local.yml up -d
+python -m doc_qa.ui
 ```
 
-备份 SQLite：
+默认访问：`http://127.0.0.1:7860/`。
+
+## CLI
 
 ```powershell
-$env:PYTHONPATH="$PWD\src"
-E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.cli backup-sqlite data/backups/docqa.sqlite3
+python -m doc_qa.cli index <文件路径>
+python -m doc_qa.cli ask "问题"
+python -m doc_qa.cli session-create
+python -m doc_qa.cli ask-session <session_id> "问题"
+python -m doc_qa.cli note-create <session_id> "笔记"
+python -m doc_qa.cli note-update <note_id> "新内容"
+python -m doc_qa.cli notes
+python -m doc_qa.cli history <session_id>
+python -m doc_qa.cli stats
+python -m doc_qa.cli report
+python -m doc_qa.cli health
+python -m doc_qa.cli backup-sqlite <备份路径>
 ```
 
-启动 UI：
+命令参数以 `python -m doc_qa.cli --help` 为准。
+
+## 测试与质量门禁
 
 ```powershell
-cd "E:\Agent\开发实践\Agent3-智能文档问答助手"
-$env:PYTHONPATH="$PWD\src"
-E:\Agent\docqa-venv311\Scripts\python.exe -m doc_qa.ui
+python -m pytest
+python -m compileall -q src tests
+git diff --check
 ```
 
-默认地址为 `http://127.0.0.1:7860`。索引、问答和学习统计也可以通过 `python -m doc_qa.cli --help` 查看 CLI 入口。
+当前全量基线为 **95 项通过**。DOC-001 Step 6 和 Step 7 均使用项目 `.venv` 重新运行全量 pytest 并确认 95 项通过。仓库未配置 CI，因此该结果是本地验证，不表述为 CI 通过。测试范围与证据口径见 [测试策略](docs/testing-strategy.md) 和 [证据索引](docs/project-management/evidence.md)。
 
-UI 文档库支持 PDF、`.md` 和 `.markdown`；问答范围支持全部文档或指定 `document_id`。切换范围会清空当前回答、来源和临时上下文，但不会删除 SQLite 中的历史会话和笔记。PDF 来源显示页码，Markdown 来源显示章节、段落和行号。
+## 数据安全边界
 
-## 目录
+- 当前仅支持本地单用户；
+- 不包含认证、用户系统、多租户或公网部署；
+- 不接入 Neo4j；
+- 不切换现有 Embedding 模型或维度；
+- 删除文档必须确认，并以 `document_id` 精确删除对应 Qdrant points；
+- 测试生命周期操作必须使用临时 SQLite / Qdrant 夹具；
+- 不应删除真实文档、真实数据库或真实 Qdrant points 来验证异常流程。
 
-- `src/doc_qa/`：解析、分块、Embedding、Qdrant、问答、学习服务和 UI
-- `tests/`：Phase 2～6 自动化测试
-- `docs/`：规格、架构、运维、部署和验证证据
-- `eval/`：文档问答评测集和评分标准
-- `data/reference/`：授权的基准文档
+## 已知限制与技术债务
 
-## 质量验证
+- Gradio 控制台可能出现 `upload_progress?upload_id=undefined` 404；已确认是非阻塞运行时风险，尚未真正修复；
+- 仓库未配置 GitHub Actions 或其他 CI，不能宣称 CI 已通过；
+- `pyproject.toml` 的项目描述仍保留早期 Phase 2 文案，属于配置元数据债务；
+- 认证、多租户、公网部署和真实生产故障演练均未执行。
 
-```powershell
-cd "E:\Agent\开发实践\Agent3-智能文档问答助手"
-E:\Agent\docqa-venv311\Scripts\python.exe -m pytest tests -q
-E:\Agent\docqa-venv311\Scripts\python.exe -m compileall -q src tests
-```
+## 文档入口
 
-部署和恢复前请阅读：
+- [文档权威地图](docs/README.md)
+- [产品范围](docs/product-brief.md)
+- [当前任务](docs/project-management/current-task.md)
+- [路线图](docs/project-management/roadmap.md)
+- [实现计划](docs/implementation-plan.md)
+- [发布清单](docs/release-checklist.md)
+- [运维手册](docs/operations-runbook.md)
+- [备份与恢复](docs/backup-recovery.md)
 
-- `docs/deployment-plan.md`
-- `docs/operations-runbook.md`
-- `docs/backup-recovery.md`
-- `docs/observability-and-cost.md`
-- `docs/release-checklist.md`
-- `docker-compose.local.yml`
+## 交付状态
 
-当前版本没有认证、多租户、限流和独立应用健康端点，SQLite 也只适合单实例。本项目的生产部署仍需单独完成安全、存储和运维评审。
+产品功能、UI 高保真恢复和 DOC-001 文档治理均已完成并形成 Git 历史。[PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1) 已完成审查并合并到 `main`；本地 `main` 已同步。项目未部署，当前没有获批准的活动任务。

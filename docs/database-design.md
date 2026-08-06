@@ -1,110 +1,146 @@
-# SQLite 数据设计
+# 当前数据库设计
 
-## 目标
+## 1. 存储职责
 
-SQLite 只保存本地学习闭环数据，不保存 API Key、Token 或外部服务凭据。Qdrant 继续负责文档向量和分块来源，SQLite 负责会话、问答、来源快照、笔记、事件和统计查询。
+系统使用两类存储：
 
-## 表关系
+- **SQLite**：文档目录、状态机、会话、回答、引用、笔记、学习事件和生命周期操作的业务权威；
+- **Qdrant**：文档分块向量与来源 payload，用于语义检索。
 
-```text
-sessions
-  ├─ conversation_turns
-  │    └─ citations
-  ├─ notes
-  └─ learning_events
-```
+默认路径为 `data/docqa.sqlite3` 和 `data/qdrant`。当前不使用 Neo4j、PostgreSQL、Redis 或对象存储。
 
-- `sessions`：会话生命周期和最近更新时间。
-- `conversation_turns`：问题、回答、状态、模型和会话内顺序；`(session_id, turn_index)` 唯一。
-- `citations`：回答时从 Qdrant 返回的来源快照，保存文档名、document_id、chunk_id、页码、source_locator、分数和片段内容。
-- `notes`：学习笔记，可关联 session、turn、document_id 和 source_locator。
-- `learning_events`：学习行为事件；`(event_type, entity_id)` 唯一，重复写入使用 `INSERT OR IGNORE`，避免重复统计。
+## 2. SQLite 运行设置
 
-## 事务和隔离
+- `PRAGMA foreign_keys = ON`；
+- `PRAGMA busy_timeout = 10000`；
+- 文件数据库在支持时使用 WAL；
+- schema 初始化和迁移完成后显式提交；
+- 应用通过 `SQLiteMemoryStore` 集中访问。
 
-- 初始化时启用 `PRAGMA foreign_keys = ON`、`busy_timeout` 和文件数据库 WAL。
-- 会话、问答及其来源在一个事务中写入；失败时整体回滚。
-- 笔记关联的 document_id/source_locator 必须存在于当前会话已保存的引用中。
-- 统计只读取 SQLite，不调用 LLM，报告事实可重复计算。
+## 3. 数据表
 
-## 记忆边界
+### `sessions`
 
-- 记忆按 `session_id` 隔离，默认最多读取最近 6 轮。
-- 上下文默认最多 4000 字符，优先保留最近轮次，再按时间顺序传给问答服务。
-- 历史对话仅用于指代消解，不作为回答事实证据；事实仍必须来自 Qdrant 检索片段。
+| 字段 | 说明 |
+|---|---|
+| `session_id` | 会话主键 |
+| `created_at` / `updated_at` | 创建与更新时间 |
 
-## 数据生命周期
+### `documents`
 
-- 默认路径：`data/docqa.sqlite3`，已被 `.gitignore` 忽略。
-- 真实验证使用：`data/phase4-validation.sqlite3`，仅为本地验证数据，不应提交。
-- 当前阶段不提供物理删除接口，避免误删学习记录；后续如需清理，应先设计归档或 soft delete 策略。
+| 字段组 | 说明 |
+|---|---|
+| `document_id` | 稳定主键；文档、向量、引用和生命周期的隔离键 |
+| `document_name` / `source_path` | 展示名称和本地来源路径 |
+| `format` / `content_hash` | `pdf` 或 `markdown`；内容去重依据 |
+| `pages_with_text` / `source_unit_count` | PDF 文本页数或格式相关来源单元数 |
+| `chunk_count` / `indexed_point_count` | 分块数与预期 Qdrant point 数 |
+| `status` / `error_message` | 当前状态与脱敏错误信息 |
+| `embedding_model` / `embedding_dimension` | 索引使用的模型与维度 |
+| `source_locator_scheme` | PDF 或 Markdown 的定位契约版本 |
+| `created_at` / `updated_at` | 创建与更新时间 |
 
-## 多文档与 Markdown：Phase 1 迁移审查
+规范状态：`pending`、`validating`、`parsing`、`indexing`、`indexed`、`failed`、`archived`、`deleting`、`deleted`、`restoring`、`inconsistent`。
 
-### 当前 `documents` 表差距
+`duplicate` 是注册操作结果，不是持久状态。
 
-当前表已有：`document_id`、`document_name`、`source_path`、`pages_with_text`、`chunk_count`、`indexed_point_count`、`status`、`error_message` 和 `updated_at`。它可以支撑现有 PDF 目录，但不能完整表达跨格式文档。
+### `conversation_turns`
 
-### 建议的新增字段
+| 字段 | 说明 |
+|---|---|
+| `turn_id` | 回合主键 |
+| `session_id` | 所属会话，删除会话时级联删除 |
+| `turn_index` | 会话内顺序，和 session 唯一 |
+| `question` / `answer` | 问题与回答文本 |
+| `status` | `answered` 或 `no_results` |
+| `model` / `created_at` | 回答模型与时间 |
 
-| 字段 | 语义 | 兼容策略 |
-| --- | --- | --- |
-| `format` | `pdf` 或 `markdown` | 既有行回填 `pdf` |
-| `content_hash` | 原始文件字节 SHA-256 | 既有行回填为 `document_id` |
-| `embedding_model` | 实际 Embedding 模型 | 既有行回填 `text-embedding-v4` |
-| `embedding_dimension` | 向量维度 | 既有行回填 `1024` |
-| `source_locator_scheme` | `pdf-page-v1` 或 `markdown-heading-line-v1` | 既有行回填 `pdf-page-v1` |
-| `source_unit_count` | PDF 页或 Markdown 章节/内容单元数量 | 既有行按现有页数初始化 |
-| `created_at` | 文档首次进入目录的时间 | 既有行回填 `updated_at` |
+### `citations`
 
-`document_id` 继续作为主键；`content_hash` 建议增加唯一索引以防止同一内容在目录中出现多份 canonical 记录。`document_name` 不作为唯一键，同名不同内容必须允许并存。
+| 字段组 | 说明 |
+|---|---|
+| `turn_id` / `citation_id` | 所属回合和回合内唯一引用 |
+| `document_id` / `document_name` / `chunk_id` | 文档和分块标识 |
+| `section` / `source_locator` | 人类可读与机器可用定位 |
+| `page_start` / `page_end` | PDF 页码；Markdown 时允许为空 |
+| `score` / `content` | 相似度和来源片段 |
 
-### 状态和事务
+初始化 SQL 兼容旧 PDF schema；启动迁移会把页码字段重建为可空，避免为 Markdown 伪造页码。
 
-- canonical 文档状态使用 `pending`、`validating`、`parsing`、`indexing`、`indexed`、`failed`；
-- `duplicate` 是一次上传/摄入操作结果，不把已有 canonical 文档改成 duplicate；
-- 文档目录状态更新与索引报告写入应使用事务；Qdrant upsert 成功后再标记 indexed；
-- Qdrant 失败时保留 failed 和错误摘要，不删除既有文档；
-- 所有查询继续使用参数化 SQL，保留 `status, updated_at`、`content_hash`、`format` 等必要索引。
+### `notes`
 
-### 迁移方案（仅设计，不执行）
+| 字段 | 说明 |
+|---|---|
+| `note_id` | 笔记主键 |
+| `session_id` | 所属会话，删除会话时级联删除 |
+| `turn_id` | 可选回答关联，回合删除时置空 |
+| `document_id` / `source_locator` | 可选文档和来源关联 |
+| `content` | 笔记正文 |
+| `created_at` / `updated_at` | 创建与更新时间 |
 
-1. 备份当前 SQLite 文件并执行 `PRAGMA integrity_check`；
-2. 新增可空或带默认值字段，避免破坏现有读取路径；
-3. 按 document_id 回填既有 PDF 的格式、哈希、Embedding profile 和 locator scheme；
-4. 校验非空、唯一性、外键、既有 sessions/citations/notes 读取；
-5. 在新代码完全兼容后再收紧约束；
-6. 失败时恢复备份，不执行 destructive down migration。
+文档归档、删除不会直接删除笔记；UI 必须保留历史关联语义，并避免把已删除文档显示为仍可检索。
 
-Phase 2 已完成迁移实现验证；Phase 3 复用现有加法迁移后的 `documents` 表更新文档索引状态和 point 数量，未执行新的 Schema 迁移。
+### `learning_events`
 
-### 来源快照兼容性
+记录回答生成、无结果、笔记等学习事件。`event_type + entity_id` 唯一，用于统计和报告，不作为问答数据源。
 
-## Phase 2 迁移实现验证（2026-08-01）
+### `document_operations`
 
-- `SQLiteMemoryStore` 已实现对 `documents` 表的可重复加法迁移：`format`、`content_hash`、`embedding_model`、`embedding_dimension`、`source_locator_scheme`、`source_unit_count`、`created_at`。
-- 旧 PDF 记录自动以 `document_id` 回填 `content_hash`，以原 `pages_with_text` 回填 `source_unit_count`，以 `updated_at` 回填 `created_at`。
-- 已在临时 legacy SQLite 上验证迁移、重复打开和 `PRAGMA integrity_check=ok`；未对真实 `data/docqa.sqlite3` 执行迁移。
-- 目录状态由 `DocumentCatalogService` 管理；`duplicate` 仅是操作结果，不写成 canonical 状态；本阶段不实现归档/删除。
+记录删除等生命周期操作的前后状态、Qdrant point 数、错误和完成时间，用于审计和失败恢复判断。
 
-现有 `citations.page_start/page_end` 需要在后续实现中改为可空，并增加 `format`、`section_path`、`paragraph_index`、`line_start` 和 `line_end`，以保存 Markdown 来源。迁移前必须保留既有 PDF 引用的可读性和恢复能力。
+## 4. 关系与索引
 
-## Phase 3 数据目录使用说明
+- session 1:N conversation turns；
+- turn 1:N citations；
+- session 1:N notes；note 可选关联 turn 和 document；
+- session 1:N learning events；
+- document 1:N citations / notes / operations（应用层关系，未全部建立外键）；
+- 按 session 时间、document 状态时间、content hash、citation document、note session/document、event session/type 建立索引。
 
-- 真实 PDF/Markdown 索引均写入 `documents` 目录；Markdown 的 `pages_with_text` 为 0，`source_unit_count` 记录解析单元数，格式和 locator scheme 分别保存为 `markdown` 与 `markdown-heading-line-v1`。
-- 同内容重复索引不新增 canonical 文档，也不增加 Qdrant points；索引失败记录 `failed` 和脱敏错误摘要，不修改既有文档状态或向量。
-- 本阶段未实现归档和删除，未修改真实学习会话、来源快照或生产数据。
+## 5. Qdrant 数据契约
 
-## 文档生命周期管理设计（方向 B，规格阶段）
+当前 collection 为 `docqa_text-embedding-v4_dim1024`。每个 point 至少包含：
 
-`documents.status` 扩展为 `archived`、`deleting`、`deleted`、`restoring`、`inconsistent`，保留既有状态；迁移必须是 additive。
+- `document_id`；
+- 文档名、格式和 `chunk_id`；
+- 内容与来源定位；
+- PDF 页码或 Markdown 章节、段落、行号；
+- Embedding profile 所需元数据。
 
-新增 `document_operations` 记录 operation_id、document_id、operation_type、from_status、to_status、point_count_before、point_count_after、error_message、created_at、completed_at，作为恢复和审计依据，不保存文档正文、密钥或 token。
+删除条件必须是精确的 `document_id` filter。禁止按文件名或不完整 hash 批量删除。
 
-SQLite 事务只覆盖本地状态和操作日志；Qdrant 删除在事务间执行。删除前提交 `deleting`，Qdrant 成功并校验后提交 `deleted`；任一步失败都记录可恢复状态，不能把 SQLite/Qdrant 宣称为单一原子事务。turns/citations/notes/events 保留；新增关联必须拒绝 deleted/deleting/inconsistent 文档。
+## 6. 生命周期事务边界
 
-## Phase 4 UI 兼容补充（2026-08-01）
+SQLite 和 Qdrant 无法形成单一 ACID 事务，删除流程采用补偿协议：
 
-- Markdown 来源不具有 PDF 页码，因此 `citations.page_start` 和 `citations.page_end` 必须允许 `NULL`；PDF 引用仍保存实际页码。
-- 初始化数据库时会检测旧版 `NOT NULL` 引用表，执行保留数据的兼容迁移后重建索引，并通过 `PRAGMA integrity_check` 验证。
-- 引用读取逻辑对空页码保持 `None`，来源展示使用 Markdown 的章节、段落和行号 `source_locator`，不伪造页码。
+1. 读取文档与删除前 point 数；
+2. SQLite 写入 operation 并将状态设为 `deleting`；
+3. 按 `document_id` 删除 Qdrant points；
+4. 验证删除后数量；
+5. SQLite 将文档写为 `deleted`，point 数归零并完成 operation；
+6. 失败时记录错误，恢复原状态；无法确认一致性时标记 `inconsistent`。
+
+删除保留 SQLite tombstone、会话、历史引用和笔记；重新导入相同内容通过恢复/重新索引路径处理，不能静默创建第二套业务身份。
+
+## 7. 归档、删除与恢复
+
+| 操作 | SQLite | Qdrant | 用户可见语义 |
+|---|---|---|---|
+| 归档 | `indexed → archived` | 保留 points | 从默认可用范围退出，可取消归档 |
+| 删除 | 保留 `deleted` tombstone | 删除该 document points | 需明确确认，可在条件满足时恢复 |
+| 重新索引 | 更新统计和索引状态 | 重建该 document points | 保持 `document_id` 和定位语义 |
+| 恢复 | `deleted → restoring → indexed` | 从源文件重建 | 源文件和内容身份必须可验证 |
+
+## 8. 备份与测试
+
+- 使用 SQLite backup API 生成一致性备份；
+- 恢复步骤见 [备份与恢复](backup-recovery.md)；
+- 生命周期、失败回滚和一致性测试必须使用临时 SQLite / Qdrant 或安全替身；
+- 不允许为测试删除真实文档、真实数据库或真实 Qdrant points。
+
+## 9. 数据风险
+
+- 跨库操作是补偿一致性，进程中断可能留下 `deleting` / `restoring` / `inconsistent`；
+- `source_path` 指向本地文件，移动或删除源文件会影响恢复；
+- 当前没有生产级多副本、加密密钥管理、在线迁移或灾备演练；
+- 真实生产故障演练未执行。

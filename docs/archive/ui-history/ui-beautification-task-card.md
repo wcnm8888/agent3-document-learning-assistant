@@ -1,5 +1,7 @@
 # 文档学习助手 UI 美化与设计系统收口
 
+> **归档，非当前权威。** 旧 UI-0～UI-5 路线已关闭；当前设计见 `docs/design-spec.md`，当前任务见 `docs/project-management/current-task.md`。
+
 > **历史任务卡，非当前实施入口。** 当前唯一状态见 `docs/project-management/current-task.md`。UI-REC0 已冻结视觉实现；本任务卡中的 `completed` 只描述旧任务边界，不代表当前页面已通过 Figma 高保真验收。
 
 ## 任务定位
