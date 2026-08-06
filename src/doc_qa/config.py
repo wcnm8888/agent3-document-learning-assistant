@@ -54,6 +54,69 @@ def _collection_model_name(model_name: str) -> str:
 
 
 @dataclass(frozen=True)
+class ContextConfig:
+    max_input_tokens: int = 18_000
+    max_input_chars: int = 20_000
+    pinned_reserve_ratio: float = 0.10
+    evidence_max_chars: int = 12_000
+    history_turn_limit: int = 6
+    history_max_chars: int = 4_000
+    reference_hint_max_chars: int = 600
+    note_limit: int = 3
+    notes_max_chars: int = 2_000
+    min_relevance: float = 0.10
+    relevance_weight: float = 0.70
+    recency_weight: float = 0.30
+    min_evidence_chars: int = 512
+    enable_compression: bool = True
+    truncation_marker: str = "[…内容已截断…]"
+
+    def __post_init__(self) -> None:
+        positive_ints = {
+            "max_input_tokens": self.max_input_tokens,
+            "max_input_chars": self.max_input_chars,
+            "evidence_max_chars": self.evidence_max_chars,
+            "history_turn_limit": self.history_turn_limit,
+            "history_max_chars": self.history_max_chars,
+            "reference_hint_max_chars": self.reference_hint_max_chars,
+            "note_limit": self.note_limit,
+            "notes_max_chars": self.notes_max_chars,
+            "min_evidence_chars": self.min_evidence_chars,
+        }
+        for name, value in positive_ints.items():
+            if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                raise ValueError(f"ContextConfig {name} 必须是大于 0 的整数")
+
+        ratios = {
+            "pinned_reserve_ratio": self.pinned_reserve_ratio,
+            "min_relevance": self.min_relevance,
+            "relevance_weight": self.relevance_weight,
+            "recency_weight": self.recency_weight,
+        }
+        for name, value in ratios.items():
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                raise ValueError(f"ContextConfig {name} 必须是数字")
+            if not 0.0 <= float(value) <= 1.0:
+                raise ValueError(f"ContextConfig {name} 必须在 [0, 1] 范围内")
+        if abs(self.relevance_weight + self.recency_weight - 1.0) > 1e-9:
+            raise ValueError("ContextConfig 相关性权重与新近性权重之和必须等于 1")
+        if self.min_evidence_chars > self.evidence_max_chars:
+            raise ValueError("ContextConfig min_evidence_chars 不能超过 evidence_max_chars")
+        if not isinstance(self.enable_compression, bool):
+            raise ValueError("ContextConfig enable_compression 必须是布尔值")
+        if not isinstance(self.truncation_marker, str) or not self.truncation_marker.strip():
+            raise ValueError("ContextConfig truncation_marker 不能为空")
+
+    @classmethod
+    def from_settings(cls, settings: "Settings") -> "ContextConfig":
+        return cls(
+            evidence_max_chars=settings.retrieval_context_max_chars,
+            history_turn_limit=settings.memory_turn_limit,
+            history_max_chars=settings.memory_context_max_chars,
+        )
+
+
+@dataclass(frozen=True)
 class Settings:
     embedding_model: str = "text-embedding-v4"
     embedding_dimension: int = 1024
@@ -103,7 +166,7 @@ class Settings:
             raise ValueError("QDRANT_COLLECTION_PREFIX 不能为空")
         sqlite_path = Path(os.getenv("SQLITE_PATH", str(cls.sqlite_path)))
 
-        return cls(
+        settings = cls(
             embedding_model=model,
             embedding_dimension=dimension,
             embedding_api_key=os.getenv("EMBED_API_KEY") or os.getenv("DASHSCOPE_API_KEY"),
@@ -142,7 +205,13 @@ class Settings:
                 "MEMORY_CONTEXT_MAX_CHARS", cls.memory_context_max_chars
             ),
         )
+        settings.context_config
+        return settings
 
     @property
     def collection_name(self) -> str:
         return f"{self.collection_prefix}_{_collection_model_name(self.embedding_model)}_dim{self.embedding_dimension}"
+
+    @property
+    def context_config(self) -> ContextConfig:
+        return ContextConfig.from_settings(self)

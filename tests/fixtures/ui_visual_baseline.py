@@ -33,8 +33,9 @@ class VisualBaselineQA:
         *,
         document_id: str | None = None,
         conversation_context: list[dict[str, str]] | None = None,
+        notes: object | None = None,
     ) -> AnswerResponse:
-        del conversation_context
+        del conversation_context, notes
         citations = [
             Citation(
                 citation_id="baseline-pdf-page-6",

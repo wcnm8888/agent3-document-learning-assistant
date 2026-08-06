@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, Sequence
 
 from .config import Settings
 from .memory_store import (
+    ConversationContextCandidate,
     ConversationTurn,
     LearningStats,
     NoteRecord,
@@ -20,13 +21,22 @@ class AskService(Protocol):
         question: str,
         *,
         document_id: str | None = None,
-        conversation_context: list[dict[str, str]] | None = None,
+        conversation_context: Sequence[object] | None = None,
+        notes: Sequence[object] | None = None,
     ) -> AnswerResponse: ...
 
 
 @dataclass(frozen=True)
 class LearningReport:
     report: dict[str, object]
+
+
+@dataclass(frozen=True)
+class ContextCandidates:
+    """交给后续上下文编排层的只读 SQLite 候选集合。"""
+
+    conversation_history: tuple[ConversationContextCandidate, ...]
+    notes: tuple[NoteRecord, ...]
 
 
 class LearningService:
@@ -54,23 +64,46 @@ class LearningService:
         document_id: str | None = None,
         conversation_context: list[dict[str, str]] | None = None,
     ) -> AnswerResponse:
-        context = conversation_context
-        if context is None:
-            context = self.store.recent_context(
-                session_id,
-                limit=self.settings.memory_turn_limit,
-                max_chars=self.settings.memory_context_max_chars,
-            )
+        candidates = self.get_context_candidates(session_id, document_id=document_id)
+        context: Sequence[object] = (
+            conversation_context
+            if conversation_context is not None
+            else candidates.conversation_history
+        )
         response = self.qa_service.ask(
             question,
             document_id=document_id,
             conversation_context=context,
+            notes=candidates.notes,
         )
         self.store.save_turn(session_id, response)
         return response
 
     def get_history(self, session_id: str) -> list[ConversationTurn]:
         return self.store.list_turns(session_id)
+
+    def get_context_candidates(
+        self,
+        session_id: str,
+        *,
+        document_id: str | None = None,
+    ) -> ContextCandidates:
+        config = self.settings.context_config
+        history = self.store.context_history_candidates(
+            session_id,
+            limit=config.history_turn_limit,
+            max_chars=config.history_max_chars,
+        )
+        notes = self.store.context_note_candidates(
+            session_id,
+            document_id=document_id,
+            limit=config.note_limit,
+            max_chars=config.notes_max_chars,
+        )
+        return ContextCandidates(
+            conversation_history=tuple(history),
+            notes=tuple(notes),
+        )
 
     def create_note(
         self,
