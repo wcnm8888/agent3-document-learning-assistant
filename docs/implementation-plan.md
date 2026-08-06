@@ -4,7 +4,7 @@
 
 - 当前任务：`CTX-001 在 Agent3 中复现上下文工程核心知识`；
 - 当前分支：`feat/ctx-001-context-engineering`；
-- 当前 Step：`Step 7 文档与 Git 收口（ready_for_review：本地提交完成，等待推送授权）`；
+- 当前 Step：`Step 7 文档与 Git 收口（ready_for_review：Draft PR #2 已创建，等待审查）`；
 - 任务卡：[CTX-001](project-management/task-card-context-engineering.md)；
 - 方案 A2、自动门禁和真实 UAT 已获负责人复核；负责人接受窄表格关系问法的剩余模型限制并确认 Step 6 通过，现已批准进入 Step 7，未部署。
 
@@ -350,5 +350,5 @@
 - `compileall` 通过；43 份 Markdown、76 个本地相对链接无失效；高置信敏感信息、冲突标记和替换字符扫描均为 0；
 - Qdrant health 200，v4/v3 collection 分别为 300/262 points；SQLite integrity `ok`；前端 `127.0.0.1:7860` 返回 200；
 - 本地完整差异审查未发现阻塞提交的代码、测试、数据安全或规格问题；窄表格关系/指代问法的安全拒答是负责人已接受的剩余质量风险；
-- 已按意图创建核心能力提交 `7caf787` 和冻结评测提交 `05ffb30`；本节文档收口由当前 `docs(context)` 提交记录。根 `README.md` 不在任务卡批准文件范围内，保持最后已合并 `main` 的交付状态描述；
-- Step 7 保持 `ready_for_review`。当前未推送、未创建 PR、未合并、未部署；下一动作是负责人另行授权推送。
+- 已按意图创建核心能力提交 `7caf787`、冻结评测提交 `05ffb30` 和初始文档收口提交 `f53050c`。根 `README.md` 不在任务卡批准文件范围内，保持最后已合并 `main` 的交付状态描述；
+- 功能分支已推送，Draft [PR #2](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/2) 已创建且合并状态为 `CLEAN`。Step 7 保持 `ready_for_review`；当前未合并、未部署，下一动作是审查 PR，合并仍需负责人另行授权。

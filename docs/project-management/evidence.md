@@ -335,7 +335,7 @@ git diff --check
 - 运行态只读核验：Qdrant healthz HTTP 200，v4/v3 collection 为 300/262 points；SQLite integrity `ok`；Gradio 前端 HTTP 200；
 - 本地完整差异审查未发现阻塞提交的代码、测试、数据安全或规格问题。外部独立审查与 CI 未执行：仓库未配置 CI，当前会话禁止子代理，且可选 `review` 技能缺少其强制 AskUserQuestion 工具；未将其伪装为通过；
 - 根 `README.md` 不在 CTX-001 批准文件范围内，保持最后已合并 `main` 的交付状态；当前功能分支状态以 `docs/README.md`、`current-task.md` 和任务卡为准；
-- 已按负责人授权精确暂存并创建核心能力提交 `7caf787`、冻结评测提交 `05ffb30`；本节文档收口由当前 `docs(context)` 提交记录。当前未推送、未创建 PR、未合并、未部署；下一步必须由负责人另行授权推送。
+- 已按负责人授权创建核心能力提交 `7caf787`、冻结评测提交 `05ffb30` 和初始文档收口提交 `f53050c`；功能分支已推送，Draft [PR #2](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/2) 已创建，状态为 `OPEN`、`CLEAN`。当前未合并、未部署；下一步是 PR 审查，合并仍需负责人另行授权。
 
 ## 7. DOC-001 证据
 

@@ -4,11 +4,11 @@
 
 - 任务：`CTX-001 在 Agent3 中复现上下文工程核心知识`；
 - 状态：`in_progress`；
-- 当前 Step：`Step 7 文档与 Git 收口（ready_for_review：本地提交完成，等待推送授权）`；
+- 当前 Step：`Step 7 文档与 Git 收口（ready_for_review：Draft PR #2 已创建，等待审查）`；
 - 当前分支：`feat/ctx-001-context-engineering`；
 - 任务卡：[CTX-001](task-card-context-engineering.md)；
 - 批准证据：负责人于 2026-08-06 依次确认任务卡和 Step 0～6，并批准进入 Step 7；
-- 当前授权：Step 7 本地差异审查、全量门禁、权威文档收口和按意图创建本地提交已完成；推送、PR、合并仍须分别授权，不部署。
+- 当前授权：Step 7 本地差异审查、全量门禁、权威文档收口、提交、推送和 Draft PR 创建已完成；合并仍须另行授权，不部署。
 
 ## Step 0 结果
 
@@ -254,7 +254,7 @@
 
 ## 下一批准动作
 
-等待负责人另行授权推送；PR、合并和部署仍未授权。
+审查 Draft [PR #2](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/2)；合并和部署仍未授权。
 
 ## Step 7 本地收口结果
 
@@ -264,4 +264,4 @@
 4. 43 份 Markdown、76 个本地相对链接全部有效；高置信敏感信息、冲突标记和替换字符均为 0；
 5. Qdrant health 200、v4/v3 为 300/262 points，SQLite integrity `ok`，前端返回 HTTP 200；
 6. 根 `README.md` 不在批准文件范围内，保持最后已合并 `main` 的交付状态描述；当前分支事实以 `docs/README.md` 和本文件为准；
-7. 已创建核心能力提交 `7caf787` 和冻结评测提交 `05ffb30`，本节文档收口由当前 `docs(context)` 提交记录；未推送、未创建 PR、未合并、未部署，Step 7 停在 `ready_for_review`。
+7. 已创建核心能力提交 `7caf787`、冻结评测提交 `05ffb30` 和初始文档收口提交 `f53050c`；功能分支已推送，Draft [PR #2](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/2) 已创建且状态为 `OPEN/CLEAN`。未合并、未部署，Step 7 停在 `ready_for_review`。

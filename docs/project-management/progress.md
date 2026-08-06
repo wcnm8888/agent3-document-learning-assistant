@@ -4,7 +4,7 @@
 
 - 当前活动任务：`CTX-001 在 Agent3 中复现上下文工程核心知识`；
 - 状态：`in_progress`；
-- 当前 Step：`Step 7 文档与 Git 收口（ready_for_review：本地提交完成，等待推送授权）`；
+- 当前 Step：`Step 7 文档与 Git 收口（ready_for_review：Draft PR #2 已创建，等待审查）`；
 - 当前分支：`feat/ctx-001-context-engineering`；
 - 任务卡已于 2026-08-06 获负责人批准；
 - 方案 A2、自动门禁和真实 UAT 已获负责人复核；负责人接受窄表格关系问法的剩余模型限制并确认 Step 6 通过，现已批准进入 Step 7，未部署。
@@ -69,7 +69,7 @@
 
 ## 下一批准动作
 
-等待负责人另行授权推送；PR、合并和部署仍未授权，不新建下一任务。
+审查 Draft [PR #2](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/2)；合并和部署仍未授权，不新建下一任务。
 
 ## 历史入口
 

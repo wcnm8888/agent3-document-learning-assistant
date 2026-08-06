@@ -10,7 +10,7 @@
 
 - 当前活动任务：`CTX-001 在 Agent3 中复现上下文工程核心知识`；[当前任务](project-management/current-task.md) 状态为 `in_progress`；
 - 当前交付分支：`feat/ctx-001-context-engineering`；
-- 当前 Step：`Step 7 文档与 Git 收口（本地提交完成，等待推送授权）`；
+- 当前 Step：`Step 7 文档与 Git 收口（Draft PR #2 已创建，等待审查）`；
 - 当前任务卡：[CTX-001](project-management/task-card-context-engineering.md)；
 - 最近完成任务：DOC-001 文档治理与权威状态收口，Step 0～7 全部完成；
 - 最近本地验证：全量测试 140 项、任务卡定向矩阵 106 项、冻结评测 10/10、compileall 和文档/敏感信息门禁通过；负责人接受窄表格关系问法的剩余限制并确认真实 UAT 通过；

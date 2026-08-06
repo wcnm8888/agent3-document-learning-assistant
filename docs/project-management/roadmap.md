@@ -2,7 +2,7 @@
 
 ## 当前产品状态
 
-文档学习助手的核心产品能力、文档生命周期、知识库可用性、UI 高保真恢复和 DOC-001 文档治理均已完成。CTX-001 的方案 A2、自动门禁和负责人真实 UAT 已通过，Step 7 本地提交已完成并等待推送授权；详情见 [当前任务](current-task.md)。
+文档学习助手的核心产品能力、文档生命周期、知识库可用性、UI 高保真恢复和 DOC-001 文档治理均已完成。CTX-001 的方案 A2、自动门禁和负责人真实 UAT 已通过，Draft [PR #2](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/2) 已创建并等待审查；详情见 [当前任务](current-task.md)。
 
 ## 当前活动任务
 
