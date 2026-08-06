@@ -84,7 +84,7 @@ python -m compileall -q src tests
 git diff --check
 ```
 
-当前全量基线为 **95 项通过**。DOC-001 Step 5 只重新执行了 pytest 收集；Step 6 在提交前使用项目 `.venv` 重新运行全量 pytest 并确认 95 项通过。仓库未配置 CI，因此该结果是本地验证，不表述为 CI 通过。测试范围与证据口径见 [测试策略](docs/testing-strategy.md) 和 [证据索引](docs/project-management/evidence.md)。
+当前全量基线为 **95 项通过**。DOC-001 Step 6 和 Step 7 均使用项目 `.venv` 重新运行全量 pytest 并确认 95 项通过。仓库未配置 CI，因此该结果是本地验证，不表述为 CI 通过。测试范围与证据口径见 [测试策略](docs/testing-strategy.md) 和 [证据索引](docs/project-management/evidence.md)。
 
 ## 数据安全边界
 
@@ -116,4 +116,4 @@ git diff --check
 
 ## 交付状态
 
-产品功能与 UI 高保真恢复已完成并形成 Git 历史。DOC-001 Step 6 已在功能分支完成分批提交和推送，并创建 [Draft PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1)。仓库已通过 GitHub CLI 核验为私有；PR 尚未审查或合并，未部署，Step 7 尚未执行。
+产品功能、UI 高保真恢复和 DOC-001 文档治理均已完成并形成 Git 历史。[PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1) 已完成审查并合并到 `main`；本地 `main` 已同步。项目未部署，当前没有获批准的活动任务。

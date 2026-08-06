@@ -66,12 +66,12 @@ DOC-001 开始时：
 
 DOC-001 Step 6 交付状态：
 
-- 提交：`f87286a`（当前权威文档）、`dc2b000`（历史归档）、`c378839`（治理记录）；
+- 提交：`f87286a`（当前权威文档）、`dc2b000`（历史归档）、`c378839`（治理记录）、`5b73d42`（Step 6 交付证据）；
 - 远端分支：`origin/chore/agent3-document-governance`；
 - 远端仓库经 GitHub CLI 核验为私有；
-- [Draft PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1) 为 OPEN / Draft，base 为 `main`；
+- [PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1) 已完成审查并合并到 `main`；
 - 状态检查列表为空，仓库当前未配置 CI；
-- 未合并、未部署，Step 7 尚未执行。
+- 本地 `main` 已同步；未部署。
 
 ## 6. DOC-001 证据
 
@@ -143,6 +143,18 @@ DOC-001 Step 6 交付状态：
 - 已完成分批提交、功能分支推送和 Draft PR 创建；
 - 未修改产品代码、测试、配置、数据库、依赖或真实数据；
 - 未合并、未同步 `main`、未归档 DOC-001、未部署。
+
+### Step 7
+
+- 远端 PR 评论、Review、状态检查和基线状态完成核验，没有待处理审查意见；
+- 独立 Codex 结构化审查尝试在 5 分钟内无输出并超时，未将超时伪装为通过；
+- 本地完整范围审查确认 33 个变更文件全部位于 `README.md`、项目 `AGENTS.md` 和 `docs/`；
+- 41 份 Markdown、70 个本地相对链接全部有效；84 份文本文件高置信敏感信息扫描无命中；
+- 全量 pytest 重新执行，95 项通过；`compileall` 和 `git diff --check` 通过；
+- DOC-001 最终状态和归档记录在同一 PR 中收口；
+- PR #1 已审查并合并到 `main`，本地 `main` 已同步；
+- DOC-001 状态为 `completed`，当前活动任务恢复为无；
+- 未部署，未自动创建或执行下一任务。
 
 ## 7. 已知未关闭项
 

@@ -12,6 +12,7 @@
 |---|---|---|
 | [文档生命周期管理任务卡](task-cards/document-lifecycle-task-card.md) | `docs/document-lifecycle-task-card.md` | 功能已完成；现行规则由生命周期规格、数据库设计和测试矩阵承接 |
 | [多文档与 Markdown 任务卡](task-cards/task-card-multi-document-markdown.md) | `docs/project-management/task-card-multi-document-markdown.md` | Phase 0～6 已关闭，不再驱动当前任务 |
+| [DOC-001 文档治理任务卡](task-cards/doc-001-document-governance.md) | `docs/project-management/current-task.md` 的已关闭任务内容 | Step 0～7 已完成；当前任务入口已恢复为“无活动任务” |
 
 ### `ui-history/`
 
@@ -44,7 +45,7 @@
 - `docs/document-lifecycle-spec.md` 及两个当前测试矩阵；
 - 部署、运维、备份恢复、可观测性和决策文档；
 - `docs/assets/ui-visual-baseline/` 冻结视觉基准；
-- DOC-001 当前任务、计划、进度、证据和发布清单。
+- 当前任务入口、路线图、进度、证据和发布清单；它们只保留当前状态与短摘要。
 
 ## 追溯与维护规则
 

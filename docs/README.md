@@ -8,11 +8,11 @@
 
 ## 当前状态
 
-- 唯一活动任务：[DOC-001 文档治理与权威状态收口](project-management/current-task.md)；
-- 当前分支：`chore/agent3-document-governance`；
-- 当前 Step：Step 6——差异审查、分批提交、推送和 Draft PR 已完成，状态为 `ready_for_step7`；
+- 当前活动任务：无；[当前任务](project-management/current-task.md) 状态为 `idle`；
+- 当前交付分支：`main`；
+- 最近完成任务：DOC-001 文档治理与权威状态收口，Step 0～7 全部完成；
 - 最近记录全量测试基线：95 项通过；
-- [Draft PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1) 已创建但尚未审查或合并；Step 7 尚未执行；
+- [PR #1](https://github.com/wcnm8888/agent3-document-learning-assistant/pull/1) 已审查并合并；DOC-001 已归档；
 - 历史材料入口：[archive/README.md](archive/README.md)；
 - Gradio 上传进度 404 是独立非阻塞技术债务；
 - CI 未配置。
